@@ -1,0 +1,45 @@
+<div id="map">
+	<!-- Render Google Map into this div -->
+</div>
+<div class="search"><!-- col-lg-3"-->
+	<form class="" role="search">
+		<div class="input-group">
+			<input type="text" class="form-control" placeholder="Search" ng-model="query" ng-enabled="map"> <!--ng-options="test for test in test_data" bs-typeahead-->
+			<div class="input-group-btn">
+				<button class="btn btn-primary" type="submit" ng-click="search()" ng-hide="list.visible" bs-button><i class="glyphicon glyphicon-search"></i></button>
+				<button class="btn btn-default btn-danger" ng-click="list.close()" ng-show="list.visible" bs-button><span class="glyphicon glyphicon-remove"></span></button>
+			</div>
+			<input type="submit" class="hidden"/>
+		</div>
+	</form>
+</div>
+<div class="list col-lg-3" ng-if="list.visible">
+	<div class="list-contents">
+		<p ng-if="list.permits.length == 0">No matches.</p>
+		<div ng-repeat="result in list.permits" ng-click="list.select(result)" ng-style="{ 'background': result.selected ? '#eee' : 'none' }" id="{{ result.id }}">
+			<h4>{{ result.name }}</h4>
+			<table class="table">
+				<tr ng-if="result.category">
+					<th class="col-md-3">Catgory</th>
+					<td>{{ result.category }}</td>
+				</tr>
+				<tr ng-if="result.proj_id">
+					<th class="col-md-3">Project Id</th>
+					<td>{{ result.proj_id }}</td>
+				</tr>
+				<tr ng-if="result.status">
+					<th class="col-md-3">Status</th>
+					<td>{{ result.status }}</td>
+				</tr>
+				<tr ng-if="result.comment">
+					<th class="col-md-3">Comment</th>
+					<td>{{ result.comment }}</td>
+				</tr>
+				<tr ng-if="result.link">
+					<th class="col-md-3">Link</th>
+					<td><a href="{{ result.link }}" target="_new">Open</a></td>
+				</tr>
+			</table>
+		</div>
+	</div>
+</div>

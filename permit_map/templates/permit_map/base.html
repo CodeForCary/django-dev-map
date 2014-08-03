@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<!-- Pull AngularJS from the Google CDN -->
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.21/angular.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.3/angular-sanitize.js"></script>
+		<!-- AngularStrap depends on angular animate -->
+		<script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.20/angular-animate.min.js"></script>
+		<!-- AngularStrap UI Framework -->
+		<script src="//oss.maxcdn.com/angular.strap/2.0.0/angular-strap.min.js"></script>
+		<script src="//oss.maxcdn.com/angular.strap/2.0.0/angular-strap.tpl.min.js"></script>
+		<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet"/>
+		<!-- Locally hosted content -->
+		<script src="{{ STATIC_URL }}/permit_map/js/angular-ui-router.min.js"></script>
+		<link href="{{ STATIC_URL }}/permit_map/css/app.css" rel="stylesheet"/>
+	</head>
+	<body>
+		<!-- Main body of the page is injected here -->
+		{% block content %}{% endblock content %}
+		<!-- Script block that connects django and angular -->
+		<script>
+			angular.module('django', []).constant('urls', {
+				templates: "{{ STATIC_URL }}/permit_map/templates/",
+				permits_geojson: "{% url 'permit_map:geojson' %}",
+				search: "{% url 'permit_map:search' %}",
+				permitsat: "{% url 'permit_map:permitsat' %}"
+			});
+		</script>
+		<!-- Block for JS at the end of the page -->
+		{% block end_js %}{% endblock end_js %}
+	</body>
+</html>

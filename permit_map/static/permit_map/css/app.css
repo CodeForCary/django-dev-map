@@ -1,0 +1,45 @@
+/* Application CSS */
+#map {
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	z-index: 0;
+	left: 0;
+	top: 0;
+}
+.search {
+	position: absolute;
+	background: #fff;
+	margin: 20px;
+	padding: 5px;
+	z-index: 100;
+	right: 0;
+	top: 0;
+	width:470px;
+}
+
+.list {
+	position: absolute;
+	background: #fff;
+	height: 100%;
+	margin: 0px;
+	padding: 75px 25px 5px 25px;
+	z-index: 50;
+	right: 0;
+	top: 0;
+	width:520px;
+}
+.list-contents {
+	overflow-y: scroll;
+	overflow-x: hidden;
+	height: 100%;
+	padding: 0 5px;
+	margin: 0;
+}
+.list-contents table {
+	width: 100%;
+}
+.list-contents h3 {
+	padding-top: 0;
+	margin-top: 0;
+}

@@ -1,0 +1,18 @@
+{% extends "permit_map/base.html" %}
+{% block content %}
+	<div ng-app="mapapp" ui-view>
+		<!-- Angular renders content into here -->
+	</div>
+{% endblock content %}
+{% block end_js %}
+	<!-- Import google map API -->
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDjF4Rue-wRz5uvVM8bG1NPTwqt3kVw9R0&sensor=TRUE"></script>
+	<!--
+		Import the default app and controller. AngularJS does its 
+		own URL handling, so from this point on we'll only need 
+		django's URLs for server-side data.
+	-->
+	<script src="{{ STATIC_URL }}/permit_map/js/app.js"></script>
+	<script src="{{ STATIC_URL }}/permit_map/js/services.js"></script>
+	<script src="{{ STATIC_URL }}/permit_map/js/controller.js"></script>
+{% endblock end_js %}

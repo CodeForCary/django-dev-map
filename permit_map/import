@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Establish a django env (see: http://www.b-list.org/weblog/2007/sep/22/standalone-django-scripts/)
+export DJANGO_SETTINGS_MODULE=cfac.settings
+# Execute kmlutil as a script
+python kmlutil.py "$@"
