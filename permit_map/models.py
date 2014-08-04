@@ -12,7 +12,7 @@ class Permit(models.Model):
 
 	name = models.CharField(max_length=1024, null=True)
 	comment = models.CharField(max_length=1024, null=True)
-	category = models.CharField(max_length=1024) #, null=True)
+	category = models.CharField(max_length=1024, null=True)
 	proj_id = models.CharField(max_length=1024, null=True)
 	link = models.CharField(max_length=1024, null=True)
 	status = models.CharField(max_length=1024, null=True)

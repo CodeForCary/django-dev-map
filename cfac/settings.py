@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-
+# Needed by OpenShift
+import urlparse
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
@@ -20,12 +21,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = 'qb5qjs!f56(x0z1ssrb4*hav(+)%d0%bpy&wy4)x==b@t&xv0e'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-TEMPLATE_DEBUG = True
+DEBUG = '$OPENSHIFT_REPO_DIR' not in os.environ
+TEMPLATE_DEBUG = '$OPENSHIFT_REPO_DIR' not in os.environ
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -46,7 +45,7 @@ INSTALLED_APPS = (
     # Easier SQL migration
     'south',
     # Helpers for using AngularJS
-    'djangular'
+    #'djangular'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -62,27 +61,36 @@ ROOT_URLCONF = 'cfac.urls'
 
 WSGI_APPLICATION = 'cfac.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/1.6/ref/settings/#databases
-
-DATABASES = {
-    'default': {
+# Database configuration. cfac requires PostGIS for spatial queries, 
+# so we are locked into postgresql. When doing local development, 
+# use a cfac user with the password cfac. When on OpenShift, we pull
+# from the environment.
+DATABASES = {}
+if 'OPENSHIFT_POSTGRESQL_DB_URL' in os.environ:
+    url = urlparse.urlparse(os.environ.get('OPENSHIFT_POSTGRESQL_DB_URL'))
+    DATABASES['default'] = {
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+	'NAME': os.environ['OPENSHIFT_APP_NAME'],
+	'USER': url.username,
+	'PASSWORD': url.password,
+        'HOST': url.hostname,
+        'PORT': url.port
+    }
+else:
+    DATABASES['default'] = {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
 	'HOST': 'localhost',
 	'PASSWORD': 'cfac',
         'NAME': 'cfac',
 	'USER': 'cfac'
     }
-}
 POSTGIS_VERSION=(2, 1)
 
-# Caching!
 CACHES = {
-	'default': {
-		'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-		'LOCATION': '127.0.0.1:11211',
-	}
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'cfac'
+    }
 }
 
 # Internationalization
@@ -104,4 +112,5 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 # TODO kendm: Needed for real server impl
-# STATIC_ROOT = '/tmp/static'
+if 'OPENSHIFT_REPO_DIR' in os.environ:
+    STATIC_ROOT = os.path.join(os.environ.get('OPENSHIFT_REPO_DIR'), 'wsgi', 'static')
