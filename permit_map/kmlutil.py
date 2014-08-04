@@ -1,5 +1,6 @@
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis import geos
+from django.core.cache import cache
 from shapely.ops import transform
 from bs4 import BeautifulSoup
 from functools import reduce
@@ -98,6 +99,9 @@ def import_fastkml_doc(doc):
 
 	# Manually update full text search after all imports are complete
 	Permit.text.update_search_field()
+
+	# Manually clear django's caches to serve new data
+	cache.clear()
 
 def extract_fields(placemark):
 	'''Attempts to extract field infromation based on the format of the files we've seen so far.'''

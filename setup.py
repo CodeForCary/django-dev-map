@@ -1,10 +1,9 @@
 from setuptools import setup
 
-setup(name='YourAppName',
+setup(name='cfac',
       version='1.0',
-      description='OpenShift App',
-      author='Your Name',
-      author_email='example@example.com',
-      url='http://www.python.org/sigs/distutils-sig/',
-#      install_requires=['Django>=1.3'],
+      description='Code for America - Cary - Django Site',
+      author='Matt Kendall',
+      author_email='mdkendall@gmail.com',
+      url='https://github.com/mattkendall/cfa-cary-django-site',
      )

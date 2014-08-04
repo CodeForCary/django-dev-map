@@ -13,16 +13,17 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 # Needed by OpenShift
 import urlparse
+import random
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'qb5qjs!f56(x0z1ssrb4*hav(+)%d0%bpy&wy4)x==b@t&xv0e'
+SECRET_KEY = ''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(50)])
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = '$OPENSHIFT_REPO_DIR' not in os.environ
-TEMPLATE_DEBUG = '$OPENSHIFT_REPO_DIR' not in os.environ
+TEMPLATE_DEBUG = 'OPENSHIFT_REPO_DIR' not in os.environ
+DEBUG = TEMPLATE_DEBUG
 
 ALLOWED_HOSTS = []
 

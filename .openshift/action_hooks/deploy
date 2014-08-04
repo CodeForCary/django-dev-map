@@ -1,0 +1,18 @@
+#!/bin/bash 
+
+# Actions we want to take on deployment of the application.
+
+# Establish our Python virtualenv -- gives access to installed pips
+source ${OPENSHIFT_PYTHON_DIR}virtenv/bin/activate
+#export PYTHON_EGG_CACHE=${OPENSHIFT_HOMEDIR}python/virtenv/lib/python-2.7/site-packages
+
+echo "Initialize the database -- errors are probably OK"
+psql -f "$OPENSHIFT_REPO_DIR"permit_map/init.sql
+
+# synchronize the database and collect static files into our STATIC_ROOT
+echo "Executing 'python ${OPENSHIFT_REPO_DIR}manage.py syncdb --noinput'"
+python "$OPENSHIFT_REPO_DIR"manage.py syncdb --noinput
+echo "Executing 'python ${OPENSHIFT_REPO_DIR}manage.py migrate permit_map --noinput'"
+python "$OPENSHIFT_REPO_DIR"manage.py migrate permit_map --noinput
+echo "Executing 'python ${OPENSHIFT_REPO_DIR}manage.py collectstatic --noinput -v0'"
+python "$OPENSHIFT_REPO_DIR"manage.py collectstatic --noinput -v0
