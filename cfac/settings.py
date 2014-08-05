@@ -40,11 +40,6 @@ else:
 	TEMPLATE_DEBUG = True
 	DEBUG = True
 
-# Follow the bouncing ball. If we're coming from OpenShift, this is
-# coming from openshift_secure. Else, it's just the string above.
-# Odd way of doing things, but it's because the _secure method needs
-# to know the length of the string to generate.
-
 # Application definition
 INSTALLED_APPS = (
 	# These are the default django apps
@@ -54,7 +49,7 @@ INSTALLED_APPS = (
 	'django.contrib.sessions',
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
-	# Added so South can do table migrations
+	# Add GIS capabilities to Django
 	'django.contrib.gis',
 	# Supports easy rendering of GeoJSON
 	'djgeojson',
@@ -79,10 +74,9 @@ ROOT_URLCONF = 'cfac.urls'
 # Default
 WSGI_APPLICATION = 'cfac.wsgi.application'
 
-# Database configuration. cfac requires DjangoGIS, which must run on a 
+# Database configuration. cfac requires GeoDjango, which must run on a 
 # spatial database. According to what I've read, Postgres is the best 
 # free platform for GIS queries. Mongo may also work. Feel free to try.
-
 DATABASES = {} # Start as an empty dict. Add based on environment
 if 'OPENSHIFT_POSTGRESQL_DB_URL' in os.environ:
 	url = urlparse.urlparse(os.environ['OPENSHIFT_POSTGRESQL_DB_URL'])
@@ -109,12 +103,12 @@ else:
 POSTGIS_VERSION=(2, 1)
 
 # Argh. We need a caching solution because generating the geoJSON data is 
-# really expensive/slow. Originally I had used memcached at it had great 
+# really expensive/slow. Originally I had used memcached and it had great 
 # performance, but OpenShift does not support it as a default cartridge, 
 # likely because it's difficult to properly secure (as I discovered).
 #
-# I then switched to django's memory model, but that one is process 
-# specific and we can't clear it easily on import.
+# I then switched to django's memory cache, but that one is process 
+# local and we can't clear it easily from import_permits.
 #
 # The final workable option is the file cache. It's easy to clear cross
 # process and while it's not as fast as the memory cache, it is much 

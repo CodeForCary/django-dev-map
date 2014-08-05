@@ -18,6 +18,11 @@ def placemark_generator(data, folders=DEFAULT_FOLDERS, name=None):
         This method also returns the name of the Folder containing the 
         placemark. If the name is not in the provided folder white list, 
 	it is skipped. The yielded value is (placemark, name).'''
+	# FIXME: This code has drifted a bit. The logic below now pulls 
+	# category data out of the KML for the placemark, rather than 
+	# using the enclosing folder information. Could stand to refactor 
+	# this logic so that it pulls all placemarks and then do the 
+	# filtering once we've pulled out category data below.
 	for feature in data.features():
 		if isinstance(feature, kml.Placemark):
 			if name in folders:
@@ -28,8 +33,8 @@ def placemark_generator(data, folders=DEFAULT_FOLDERS, name=None):
 			for obj in placemark_generator(feature, folders=folders, name=name):
 				yield obj 
 DATA_TRANSFORMS = [
-	lambda line : line.replace('xsd:', ''),
-	lambda line : line.replace('gx:', '')
+	lambda kml_data : kml_data.replace('xsd:', ''),
+	lambda kml_data : kml_data.replace('gx:', '')
 ]
 def parse_kml_file(path):
 	'''Open the provided file, massage its contents, and parse with fastkml.'''
@@ -38,7 +43,7 @@ def parse_kml_file(path):
 		# apply each function in the DATA_TRANSFORMS array to the input 
 		# file. So the file data passes through the functions in the D_T 
 		# array as a chain: D_T[LEN](DT[LEN-1}(...)). It is designed 
-		# this way so that as we find more erros in the KML formatting, 
+		# this way so that as we find more errors in the KML formatting, 
 		# we can add in additional preprocessors.
 		kml_data = reduce((lambda x, y: y(x)), DATA_TRANSFORMS, kml_file.read())
 	obj = kml.KML()
@@ -51,16 +56,8 @@ def import_file(path):
 
 def import_fastkml_doc(doc):
 	'''Import the provided fastkml document.'''
-	# SIMPLIFY DESIGN FOR NOW. Add this code later if it makes sense.
-	# We do a lot of damage in one line here. We create a generator for our
-	# KML object that gives us each Placemark in the KML file as a tuple. 
-	# As we pull from that generator, we sort the list descending in area. 
-	# This is done in the hopes that our overlap detection logic below will
-	# have less work to do.
-	# tuples = sorted(placemark_generator(doc), key=(lambda p : -p[0].geometry.area))
-	#for t in tuples: # loop over each placemark tuple
-	# SIMPLIFY DESIGN FOR NOW. Add this code later if it makes sense.
-
+	# Pass our kml document through the generator, with gives us an iterator over 
+	# tuples of (Placemark, category).
 	for t in placemark_generator(doc): # loop over our tuple generator
 		placemark = t[0] # generator puts the placemark in t[0]
 		category = t[1]  # and the category goes into t[1]
@@ -71,7 +68,7 @@ def import_fastkml_doc(doc):
 		# anyway. Use the transform function to strip out Z.
 		geom2d = transform((lambda x, y, z : filter(None, tuple([x, y, None]))), placemark.geometry)
 		# Now we can convert the shapely geometry into a django geometry...
-		geom = GEOSGeometry(geom2d.wkt, srid=4326) 
+		geom = GEOSGeometry(geom2d.wkt, srid=4326) # 4326 is standard lat/lng projection
 		# The town data mixes Polygons and MultiPolygons in their data.
 		# That's fine, and we could eventually have a model that stores
 		# one or the other. For the moment, however, it's much easier 
@@ -79,6 +76,15 @@ def import_fastkml_doc(doc):
 		if geom and isinstance(geom, geos.Polygon):
 			geom = geos.MultiPolygon(geom)
 
+		# Do a quick/dirty duplicate check by looking for any existing permit with this same 
+		# geometry and HTML description. It appears to be a farily decent heuristic for 
+		# identity without having to check every field.
+		#
+		# FIXME: There should be a way to use Python meta-programming and the data we have on
+		# hand to construct an exact match query. Or we could figure out a better way of 
+		# tracking duplicate permits for a region, or duplicate data for all permits in the 
+		# same overlapping region, etc. Lots of options depending on how we want to use the 
+		# data in the application.
 		if not Permit.objects.filter(description=placemark.description, region=geom).exists():
 			# Create a django model object with the geometry and the description
 			permit = Permit(region=geom, description=placemark.description)
@@ -87,19 +93,16 @@ def import_fastkml_doc(doc):
 			# placemark as individual fields (instead of HTML formatted text).
 			fields = extract_fields(placemark)
 			for field, value in extract_fields(placemark).iteritems():
-				# Use python's reflection abilities to set the field
+				# Set each extracted field into the model object
 				setattr(permit, field, value)
 
 
-			# Save the record to the database. Note that we're not doing any 
-			# de-duplication here because it's really difficult to tell when 
-			# data is being added. Sometimes we get a new record for a region 
-			# or a sub/super-region with useful comments. Rather than throwing
-			# that away, store everything and make it all visible to the user.
+			# Save the record to the database. 
 			permit.save()
 
 
-	# Manually update full text search after all imports are complete
+	# Manually update full text search after all imports are complete. See
+	# models.py for the reason this is necessary.
 	Permit.text.update_search_field()
 
 	# Manually clear django's caches to serve new data
@@ -108,10 +111,13 @@ def import_fastkml_doc(doc):
 def extract_fields(placemark):
 	'''Attempts to extract field infromation based on the format of the files we've seen so far.'''
 	try:
+		# Town of Cary
 		return extract_extdata(placemark)
 	except AttributeError:
+		# Town of Apex
 		return extract_xml(placemark)
 
+# Mapping from Cary KML fields to our django model
 EXT_DATA_TO_FIELD_MAPPING = {
 	'ProjectName': 'name',
 	'Comments': 'comment',
@@ -133,6 +139,7 @@ def extract_extdata(placemark):
 			result[EXT_DATA_TO_FIELD_MAPPING[key]] = entry['value']
 	return result
 
+# Mapping from Apex HTML text to our django model
 XML_DATA_TO_FIELD_MAPPING = {
 	'More_Info': 'link',
 	'Type': 'category',
@@ -146,8 +153,8 @@ def extract_xml(placemark):
 	result = {}
 	# The data is stored as rows in a nested table. Get the rows from that table
 	for tr in xml.find_all('table')[1].find_all('tr'): 
-		td = tr.find_all('td') # Get the fields
-		if len(td) == 2:
+		td = tr.find_all('td') # Get the fields (<td>=<td> pairs)
+		if len(td) == 2: # if we have 2 tds
 			key = td[0].get_text() # field name is in the first td
 			if key in XML_DATA_TO_FIELD_MAPPING:
 				# Use the key name to pivot on our map above

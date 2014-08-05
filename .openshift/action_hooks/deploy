@@ -18,6 +18,7 @@ echo "Executing 'python ${OPENSHIFT_REPO_DIR}manage.py collectstatic --noinput -
 python "$OPENSHIFT_REPO_DIR"manage.py collectstatic --noinput -v0
 
 # import all permit files in the repo
+echo "Importing KML -- this can take quite a while"
 python "$OPENSHIFT_REPO_DIR"import_permits.py "$OPENSHIFT_REPO_DIR"kml/*.kml
 
 

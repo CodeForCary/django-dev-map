@@ -1,7 +1,11 @@
 {% extends "permit_map/base.html" %}
 {% block content %}
 	<div ng-app="mapapp" ui-view>
-		<!-- Angular renders content into here -->
+		<!-- 
+			Angular takes over rendering right here. It digests 
+			the application and then injects the template for 
+			the current URL into this DIV.
+		-->
 	</div>
 {% endblock content %}
 {% block end_js %}
@@ -11,6 +15,8 @@
 		Import the default app and controller. AngularJS does its 
 		own URL handling, so from this point on we'll only need 
 		django's URLs for server-side data.
+
+		So right here is where our Angular app gets initialized:
 	-->
 	<script src="{{ STATIC_URL }}/permit_map/js/app.js"></script>
 	<script src="{{ STATIC_URL }}/permit_map/js/services.js"></script>

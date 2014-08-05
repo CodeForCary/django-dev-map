@@ -1,4 +1,10 @@
-/* Application CSS */
+/* 
+ * Application CSS 
+ */
+
+/*
+ * Make the google map full screen and in the background
+ */
 #map {
 	position: absolute;
 	height: 100%;
@@ -7,6 +13,10 @@
 	left: 0;
 	top: 0;
 }
+
+/*
+ * Absolute position and hover the search bar over all items.
+ */
 .search {
 	position: absolute;
 	background: #fff;
@@ -18,6 +28,12 @@
 	width:470px;
 }
 
+/*
+ * Define a pane that is wider than our search box and lays
+ * under it. Put some padding at the top of this box so that 
+ * items within it don't wind up under the search box as 
+ * things are moved around.
+ */
 .list {
 	position: absolute;
 	background: #fff;
@@ -29,6 +45,9 @@
 	top: 0;
 	width:520px;
 }
+/*
+ * Nested pane within our list div that adds a scroll bar.
+ */
 .list-contents {
 	overflow-y: scroll;
 	overflow-x: hidden;
@@ -36,6 +55,10 @@
 	padding: 0 5px;
 	margin: 0;
 }
+/*
+ * Basic formatting of search results. The rest of the styling is handled by 
+ * Bootstrap.
+ */
 .list-contents table {
 	width: 100%;
 }

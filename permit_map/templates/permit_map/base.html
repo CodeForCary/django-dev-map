@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<!-- TODO: if we define a mobile UI based on Ionic, then we should break this up into more templates -->
+
 		<!-- Pull AngularJS from the Google CDN -->
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.21/angular.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.3/angular-sanitize.js"></script>
@@ -15,9 +17,19 @@
 		<link href="{{ STATIC_URL }}/permit_map/css/app.css" rel="stylesheet"/>
 	</head>
 	<body>
-		<!-- Main body of the page is injected here -->
+		<!-- Main body of the page is injected here by child templates -->
 		{% block content %}{% endblock content %}
-		<!-- Script block that connects django and angular -->
+		<!-- 
+			Script block that connects django and angular. This
+			content is benig rendered by Django, not Angular. So we
+			can pass our URL routes using Django's url tag here.
+			This bit of trickery makes it so that if we change urls.py
+			the web UI will silently switch over to those new URLs.
+
+			There's also an Angular package for django that will do 
+			this sort of thing for us, more or less, but since we
+			only have a handful of URLs at the moment...
+		-->
 		<script>
 			angular.module('django', []).constant('urls', {
 				templates: "{{ STATIC_URL }}/permit_map/templates/",
@@ -26,7 +38,7 @@
 				permitsat: "{% url 'permit_map:permitsat' %}"
 			});
 		</script>
-		<!-- Block for JS at the end of the page -->
+		<!-- Child templates add their own JS here -->
 		{% block end_js %}{% endblock end_js %}
 	</body>
 </html>

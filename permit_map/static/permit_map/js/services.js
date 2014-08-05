@@ -1,5 +1,18 @@
 /**
  * Services for our Angular application. These pull AJAX data across the wire.
+ *
+ * TODO: If we stick with Angular, this should really be refactored into a 
+ * single service with multiple methods:
+ *  - permits.search
+ *  - permits.all
+ *  - permits.at
+ *
+ * TODO: Horrible error handling in here. Would be aided by moving to a single 
+ * service object, since they could share error handling code.
+ *
+ * Notice the declared dependency on 'django', which is an object that contains
+ * all of the AJAX urls we have exposed to our Angular app. See:
+ * permit_map/templates/index.html to see how this is established.
  */
 angular.module('mapapp.services', [ 'django' ])
 	/**
@@ -8,6 +21,7 @@ angular.module('mapapp.services', [ 'django' ])
 	 */
 	.service('search', [ '$http', '$q', 'urls', function($http, $q, urls) {
 		function text_search(query) {
+			// AJAX: /search?q=<<query>>
 			var request = $http({
 				url: urls.search,
 				method: "GET",
@@ -32,6 +46,7 @@ angular.module('mapapp.services', [ 'django' ])
 	 */
 	.service('geojson', [ '$http', '$q', 'urls', function($http, $q, urls) {
 		function geojson() {
+			// AJAX: /permits/geojson
 			var request = $http({
 				url: urls.permits_geojson,
 				method: "GET"
@@ -53,6 +68,7 @@ angular.module('mapapp.services', [ 'django' ])
 	 */
 	.service('permits', [ '$http', '$q', 'urls', function($http, $q, urls) {
 		function permitsat(lat, lon) {
+			// AJAX: /permitsat?lat=<<lat>>&lon=<<lon>>
 			var request = $http({
 				url: urls.permitsat,
 				method: "GET",
