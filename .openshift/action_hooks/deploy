@@ -16,3 +16,8 @@ echo "Executing 'python ${OPENSHIFT_REPO_DIR}manage.py migrate permit_map --noin
 python "$OPENSHIFT_REPO_DIR"manage.py migrate permit_map --noinput
 echo "Executing 'python ${OPENSHIFT_REPO_DIR}manage.py collectstatic --noinput -v0'"
 python "$OPENSHIFT_REPO_DIR"manage.py collectstatic --noinput -v0
+
+# import all permit files in the repo
+python "$OPENSHIFT_REPO_DIR"import_permits.py "$OPENSHIFT_REPO_DIR"kml/*.kml
+
+
