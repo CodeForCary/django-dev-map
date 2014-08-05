@@ -11,107 +11,141 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-# Needed by OpenShift
-import urlparse
-import random
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
+# Added for OpenShift configutation
+import urlparse # To parse postgres URL
+#import random # To generate key
+import imp # To generate key
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = ''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(50)])
 
-# SECURITY WARNING: don't run with debug turned on in production!
-TEMPLATE_DEBUG = 'OPENSHIFT_REPO_DIR' not in os.environ
-DEBUG = TEMPLATE_DEBUG
+# Preamble for SECRET_KEY work done below
+temp_keys = { 'SECRET_KEY': 'qb5qjs!f56(x0z1ssrb4*hav(+)%d0%bpy&wy4)x==b@t&xv0e' }
+use_keys = temp_keys # OpenShift sample does this copy. Necessary?
 
-ALLOWED_HOSTS = []
+if 'OPENSHIFT_APP_DNS' in os.environ:
+	# When in OpenShift, only allow connections from our host
+	ALLOWED_HOSTS = [
+		os.environ['OPENSHIFT_APP_DNS'],
+	]
+	# Also, disable all debugging
+	TEMPLATE_DEBUG = False
+	DEBUG = False
+
+	# Generate strong secret key here
+	imp.find_module('openshiftlibs')
+	import openshiftlibs
+	use_keys = openshiftlibs.openshift_secure(default_keys)
+else:
+	# Else, in dev. Turn on DEBUG which disables ALLOWED_HOSTS
+	ALLOWED_HOSTS = [] # Defined, but empty
+	TEMPLATE_DEBUG = True
+	DEBUG = True
+
+# Follow the bouncing ball. If we're coming from OpenShift, this is
+# coming from openshift_secure. Else, it's just the string above.
+# Odd way of doing things, but it's because the _secure method needs
+# to know the length of the string to generate.
+SECRET_KEY = use_keys['SECRET_KEY']
 
 # Application definition
-
 INSTALLED_APPS = (
-    # These are the default django apps
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    # Added so South can do table migrations
-    'django.contrib.gis',
-    # Supports easy rendering of GeoJSON
-    'djgeojson',
-    # Our actual application
-    'permit_map',
-    # Easier SQL migration
-    'south',
-    # Helpers for using AngularJS
-    #'djangular'
+	# These are the default django apps
+	'django.contrib.admin',
+	'django.contrib.auth',
+	'django.contrib.contenttypes',
+	'django.contrib.sessions',
+	'django.contrib.messages',
+	'django.contrib.staticfiles',
+	# Added so South can do table migrations
+	'django.contrib.gis',
+	# Supports easy rendering of GeoJSON
+	'djgeojson',
+	# Our actual application
+	'permit_map',
+	# Easier SQL migration
+	'south',
 )
 
 MIDDLEWARE_CLASSES = (
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+	'django.contrib.sessions.middleware.SessionMiddleware',
+	'django.middleware.common.CommonMiddleware',
+	'django.middleware.csrf.CsrfViewMiddleware',
+	'django.contrib.auth.middleware.AuthenticationMiddleware',
+	'django.contrib.messages.middleware.MessageMiddleware',
+	'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
+# Defines the routes and URLs for our REST services
 ROOT_URLCONF = 'cfac.urls'
 
+# Default
 WSGI_APPLICATION = 'cfac.wsgi.application'
 
-# Database configuration. cfac requires PostGIS for spatial queries, 
-# so we are locked into postgresql. When doing local development, 
-# use a cfac user with the password cfac. When on OpenShift, we pull
-# from the environment.
-DATABASES = {}
+# Database configuration. cfac requires DjangoGIS, which must run on a 
+# spatial database. According to what I've read, Postgres is the best 
+# free platform for GIS queries. Mongo may also work. Feel free to try.
+
+DATABASES = {} # Start as an empty dict. Add based on environment
 if 'OPENSHIFT_POSTGRESQL_DB_URL' in os.environ:
-    url = urlparse.urlparse(os.environ.get('OPENSHIFT_POSTGRESQL_DB_URL'))
-    DATABASES['default'] = {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-	'NAME': os.environ['OPENSHIFT_APP_NAME'],
-	'USER': url.username,
-	'PASSWORD': url.password,
-        'HOST': url.hostname,
-        'PORT': url.port
-    }
+	url = urlparse.urlparse(os.environ['OPENSHIFT_POSTGRESQL_DB_URL'])
+	DATABASES['default'] = {
+		'ENGINE': 'django.contrib.gis.db.backends.postgis',
+		'NAME': os.environ['OPENSHIFT_APP_NAME'],
+		'USER': url.username,
+		'PASSWORD': url.password,
+		'HOST': url.hostname,
+		'PORT': url.port
+	}
 else:
-    DATABASES['default'] = {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-	'HOST': 'localhost',
-	'PASSWORD': 'cfac',
-        'NAME': 'cfac',
-	'USER': 'cfac'
-    }
+	# Obviously alter this to suit your local environment
+	DATABASES['default'] = {
+		'ENGINE': 'django.contrib.gis.db.backends.postgis',
+		'HOST': 'localhost',
+		'PASSWORD': 'cfac',
+		'NAME': 'cfac',
+		'USER': 'cfac'
+	}
+# Added due to problems where the postgis backend couldn't properly parse
+# the version out of the database. Manually specified. Change if you're 
+# using a different version of postgis.
 POSTGIS_VERSION=(2, 1)
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'cfac'
-    }
-}
+# Argh. We need a caching solution because generating the geoJSON data is 
+# really expensive/slow. Originally I had used memcached at it had great 
+# performance, but OpenShift does not support it as a default cartridge, 
+# likely because it's difficult to properly secure (as I discovered).
+#
+# I then switched to django's memory model, but that one is process 
+# specific and we can't clear it easily on import.
+#
+# The final workable option is the file cache. It's easy to clear cross
+# process and while it's not as fast as the memory cache, it is much 
+# better than building the geoJSON data every time.
+CACHES = {}
+if 'OPENSHIFT_DATA_DIR' in os.environ:
+	CACHES['default'] = {
+		'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+		'LOCATION': os.path.join(os.environ['OPENSHIFT_DATA_DIR'], 'cfac.cache')
+	}
+else:
+	CACHES['default'] = {
+		'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+		'LOCATION': '/tmp/cfac.cache'
+	}
 
-# Internationalization
+
+# Internationalization has been left at the defaults.
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.6/howto/static-files/
-
+# Serve from the /static/ URL in both production and developpment
 STATIC_URL = '/static/'
-# TODO kendm: Needed for real server impl
 if 'OPENSHIFT_REPO_DIR' in os.environ:
-    STATIC_ROOT = os.path.join(os.environ.get('OPENSHIFT_REPO_DIR'), 'wsgi', 'static')
+	# Collect static files here during OpenShift deployment.
+	STATIC_ROOT = os.path.join(os.environ['OPENSHIFT_REPO_DIR'], 'wsgi', 'static')

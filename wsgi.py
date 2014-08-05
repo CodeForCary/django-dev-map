@@ -1,4 +1,5 @@
 #!/usr/bin/python
+import sys
 import os
 
 # Add the django cfac app to the environemnt
