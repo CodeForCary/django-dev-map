@@ -79,22 +79,24 @@ def import_fastkml_doc(doc):
 		if geom and isinstance(geom, geos.Polygon):
 			geom = geos.MultiPolygon(geom)
 
-		# Create a django model object with the geometry and the description
-		permit = Permit(region=geom, description=placemark.description)
+		if not Permit.objects.filter(description=placemark.description, region=geom).exists():
+			# Create a django model object with the geometry and the description
+			permit = Permit(region=geom, description=placemark.description)
 
-		# Use a helper method to extract all the data we can find fro mthis 
-		# placemark as individual fields (instead of HTML formatted text).
-		fields = extract_fields(placemark)
-		for field, value in extract_fields(placemark).iteritems():
-			# Use python's reflection abilities to set the field
-			setattr(permit, field, value)
+			# Use a helper method to extract all the data we can find from this 
+			# placemark as individual fields (instead of HTML formatted text).
+			fields = extract_fields(placemark)
+			for field, value in extract_fields(placemark).iteritems():
+				# Use python's reflection abilities to set the field
+				setattr(permit, field, value)
 
-		# Save the record to the database. Note that we're not doing any 
-		# de-duplication here because it's really difficult to tell when 
-		# data is being added. Sometimes we get a new record for a region 
-		# or a sub/super-region with useful comments. Rather than throwing
-		# that away, store everything and make it all visible to the user.
-		permit.save()
+
+			# Save the record to the database. Note that we're not doing any 
+			# de-duplication here because it's really difficult to tell when 
+			# data is being added. Sometimes we get a new record for a region 
+			# or a sub/super-region with useful comments. Rather than throwing
+			# that away, store everything and make it all visible to the user.
+			permit.save()
 
 
 	# Manually update full text search after all imports are complete
