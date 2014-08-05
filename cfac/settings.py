@@ -14,28 +14,27 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 # Added for OpenShift configutation
 import urlparse # To parse postgres URL
-#import random # To generate key
-import imp # To generate key
-
+import random # To generate key
 
 # Preamble for SECRET_KEY work done below
 temp_keys = { 'SECRET_KEY': 'qb5qjs!f56(x0z1ssrb4*hav(+)%d0%bpy&wy4)x==b@t&xv0e' }
 use_keys = temp_keys # OpenShift sample does this copy. Necessary?
 
 if 'OPENSHIFT_APP_DNS' in os.environ:
+	# Generate a secret key randomly -- this should be strong enough for the moment
+	SECRET_KEY = ''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(50)])
+
 	# When in OpenShift, only allow connections from our host
 	ALLOWED_HOSTS = [
 		os.environ['OPENSHIFT_APP_DNS'],
 	]
+
 	# Also, disable all debugging
 	TEMPLATE_DEBUG = False
 	DEBUG = False
-
-	# Generate strong secret key here
-	imp.find_module('openshiftlibs')
-	import openshiftlibs
-	use_keys = openshiftlibs.openshift_secure(default_keys)
 else:
+	# Don't use this value in production, it's visible on GitHub. Good enough for dev.
+	SECRET_KEY = 'qb5qjs!f56(x0z1ssrb4*hav(+)%d0%bpy&wy4)x==b@t&xv0e'
 	# Else, in dev. Turn on DEBUG which disables ALLOWED_HOSTS
 	ALLOWED_HOSTS = [] # Defined, but empty
 	TEMPLATE_DEBUG = True
@@ -45,7 +44,6 @@ else:
 # coming from openshift_secure. Else, it's just the string above.
 # Odd way of doing things, but it's because the _secure method needs
 # to know the length of the string to generate.
-SECRET_KEY = use_keys['SECRET_KEY']
 
 # Application definition
 INSTALLED_APPS = (
