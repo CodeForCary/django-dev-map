@@ -8,8 +8,8 @@ This application takes [KML](https://developers.google.com/kml/) permit data
 issued by the towns of Cary and Apex and imports them into a 
 [GeoDjango](http://geodjango.org/) application, which allows for native storage
 of geometric objects and provides query tools for calculating region overlap, 
-containment, etc. The django exposes a simple API that supports such operations
-as:
+containment, etc. The app django exposes a simple API that supports such 
+operations as:
 
 - Rendering all permits into [GeoJSON](http://geojson.org/), suitable for 
   overlay on a map.
@@ -18,7 +18,7 @@ as:
 
 A rudimentary web interface is also included to allow exercising these APIs. 
 The web interface leverages [AngularJs](https://angularjs.org/) and is 
-currently only comfortable for usage on the desktop, but is provided for 
+currently only comfortable for usage on the desktop. It is provided for 
 demonstration purposes only and could be vastly improved.
 
 ## Architecture
@@ -39,7 +39,9 @@ point are described below:
 3. **AngularJS App**: The front-end is rendered using AngularJS. Angular is 
    invoked by the index.html template and control then shifts to a set of 
    statically served JavaScript and HTML files. All of the front-end code 
-   comes from a CDN or is stored in `permit_map/static/permit_map/*`.
+   comes from a CDN or is stored in `permit_map/static/permit_map/*`. The 
+   main entry points are `js/app.js`, `js/controller.js`, and 
+   `templates/render.html`.
 
 ## Contributing
 Pulling down the source code and analyzing the various objects within the 
@@ -48,14 +50,14 @@ works. There are two ways of getting a working application: local development
 and deploying to [RedHat OpenShift](https://www.openshift.com/). Local 
 development is preferred.
 
-Regardless, it is probably best to clone this repository within it's own 
+Note that it is probably best to clone this repository within it's own 
 sandbox. It makes both local and OpenShift development much easier. One 
 possible directory structure is:
 
 ```
-code-for-cary/			# your sandbox directory
-|-- cfa-cary-django-site	# this repository
-`-- open-shift			# open-shift staging
+code-for-cary/				# your sandbox directory
+|-- cfa-cary-django-site		# this repository
+`-- open-shift				# open-shift staging
 ```
 
 ### Local Development
@@ -71,7 +73,8 @@ postgis.
 
 After installing Postgres, we need to add a user and database. We do so by 
 switching to the postgres user and running the createdb and createuser 
-commands. Finally, we grant rights to our new user.
+commands. Finally, we grant rights to our new user. Again, examples assume
+Ubuntu:
 
 ```
 # sudo su - postgresql
