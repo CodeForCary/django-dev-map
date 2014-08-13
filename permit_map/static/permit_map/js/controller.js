@@ -8,7 +8,7 @@ angular.module('mapapp.controllers', [ 'mapapp.services'/*, 'ngSanitize'*/ ])
 	 * Note that we have a declared dependency on 'mapapp.services', which is defined in services.js and 
 	 * gives us access to django over AJAX.
 	 */
-        .controller('MapRender', function($scope, $http, $location, $anchorScroll, search, geojson, permits) {
+        .controller('MapRender', function($scope, $http, $location, $anchorScroll, $timeout, search, geojson, permits) {
 		/**
 		 * Calling this function will initialize the Google Map. It is called as the last action here.
 		 */
@@ -74,6 +74,12 @@ angular.module('mapapp.controllers', [ 'mapapp.services'/*, 'ngSanitize'*/ ])
 			 */
 			geojson.fetch().then(function(data) {
 				map.data.addGeoJson(data);
+			});
+
+			$scope.$watch('list.visible', function() {
+				$timeout(function() {
+					google.maps.event.trigger($scope.map, 'resize');
+				});
 			});
 		};
 
@@ -192,17 +198,16 @@ angular.module('mapapp.controllers', [ 'mapapp.services'/*, 'ngSanitize'*/ ])
 				 * matching permits.
 				 */
 				search.text($scope.query).then(function(data) {
-					$scope.list.open(data['region']);
 					var bbox = data['bound'];
 					if (bbox.length > 0) {
-									var swLatLng = new google.maps.LatLng(bbox[1],
-													bbox[0]);
-									var neLatLng = new google.maps.LatLng(bbox[3],
-													bbox[2]);
-									var bounds = new google.maps.LatLngBounds(swLatLng, neLatLng);
-									google.maps.event.trigger($scope.map, 'resize');
-									$scope.map.fitBounds(bounds);
+						var swLatLng = new google.maps.LatLng(bbox[1],
+										bbox[0]);
+						var neLatLng = new google.maps.LatLng(bbox[3],
+										bbox[2]);
+						var bounds = new google.maps.LatLngBounds(swLatLng, neLatLng);
+						$scope.map.fitBounds(bounds);
 					}
+					$scope.list.open(data['region']);
 				});
 			} else {
 				$scope.list.close();
