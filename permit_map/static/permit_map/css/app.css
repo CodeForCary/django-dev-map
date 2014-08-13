@@ -66,3 +66,10 @@
 	padding-top: 0;
 	margin-top: 0;
 }
+
+.squish-map {
+				width: -moz-calc(100% - 520px) !important;
+				width: -webkit-calc(100% - 520px) !important;
+				width: -o-calc(100% - 520px) !important;
+				width: calc(100% - 520px) !important;
+}

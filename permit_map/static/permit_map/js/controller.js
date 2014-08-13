@@ -192,7 +192,17 @@ angular.module('mapapp.controllers', [ 'mapapp.services'/*, 'ngSanitize'*/ ])
 				 * matching permits.
 				 */
 				search.text($scope.query).then(function(data) {
-					$scope.list.open(data);
+					$scope.list.open(data['region']);
+					var bbox = data['bound'];
+					if (bbox.length > 0) {
+									var swLatLng = new google.maps.LatLng(bbox[1],
+													bbox[0]);
+									var neLatLng = new google.maps.LatLng(bbox[3],
+													bbox[2]);
+									var bounds = new google.maps.LatLngBounds(swLatLng, neLatLng);
+									google.maps.event.trigger($scope.map, 'resize');
+									$scope.map.fitBounds(bounds);
+					}
 				});
 			} else {
 				$scope.list.close();
