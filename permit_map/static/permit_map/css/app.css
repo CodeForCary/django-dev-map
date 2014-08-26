@@ -59,17 +59,16 @@
  * Basic formatting of search results. The rest of the styling is handled by 
  * Bootstrap.
  */
-.list-contents table {
+/*.list-contents table {
 	width: 100%;
 }
 .list-contents h3 {
 	padding-top: 0;
 	margin-top: 0;
-}
-
+}*/
 .squish-map {
-				width: -moz-calc(100% - 520px) !important;
-				width: -webkit-calc(100% - 520px) !important;
-				width: -o-calc(100% - 520px) !important;
-				width: calc(100% - 520px) !important;
+	width: -moz-calc(100% - 520px) !important;
+	width: -webkit-calc(100% - 520px) !important;
+	width: -o-calc(100% - 520px) !important;
+	width: calc(100% - 520px) !important;
 }

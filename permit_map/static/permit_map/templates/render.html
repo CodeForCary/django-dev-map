@@ -42,34 +42,51 @@
 			call $scope.list.select(this permit). Change the 
 			background style if selected.
 		-->
-		<div ng-repeat="result in list.permits" ng-click="list.select(result)" ng-style="{ 'background': result.selected ? '#eee' : 'none' }" id="{{ result.id }}">
-			<!-- 
-				Simple template for our permit data. Heavy 
-				usage of Angular data bindings and display.
-			-->
-			<h4>{{ result.name }}</h4>
-			<table class="table">
-				<tr ng-if="result.category">
-					<th class="col-md-3">Catgory</th>
-					<td>{{ result.category }}</td>
-				</tr>
-				<tr ng-if="result.proj_id">
-					<th class="col-md-3">Project Id</th>
-					<td>{{ result.proj_id }}</td>
-				</tr>
-				<tr ng-if="result.status">
-					<th class="col-md-3">Status</th>
-					<td>{{ result.status }}</td>
-				</tr>
-				<tr ng-if="result.comment">
-					<th class="col-md-3">Comment</th>
-					<td>{{ result.comment }}</td>
-				</tr>
-				<tr ng-if="result.link">
-					<th class="col-md-3">Link</th>
-					<td><a href="{{ result.link }}" target="_new">Open</a></td>
-				</tr>
-			</table>
+		<div ng-repeat="result in list.permits" ng-click="list.select(result)" class="container-fluid permit"> <!-- ng-style="{ 'background': result.selected ? '#eee' : 'none' }" id="{{ result.id }}"-->
+			<!--p>{{ result.first_seen | date : 'shortDate' }}</p>
+			<p></p>
+			<p>{{ result.township }}</p>
+
+			<div ng-repeat="entry in result.data['name']">
+				<h3>{{ entry.value }}</h3>
+				<i>{{ entry.date | date : 'shortDate' }}</i>
+			</div>
+
+			<div ng-repeat="entry in result.data['proj_id']">
+				<h3>{{ entry.value }}</h3>
+				<i>{{ entry.date | date : 'shortDate' }}</i>
+			</div>
+
+			<div ng-repeat="entry in result.data['category']">
+				<h3>{{ entry.value }}</h3>
+				<i>{{ entry.date | date : 'shortDate' }}</i>
+			</div>
+
+			<div ng-repeat="entry in result.data['comment']">
+				<h3>{{ entry.value }}</h3>
+				<i>{{ entry.date | date : 'shortDate' }}</i>
+			</div>
+
+			<div ng-repeat="entry in result.data['status']">
+				<h3>{{ entry.value }}</h3>
+				<i>{{ entry.date | date : 'shortDate' }}</i>
+			</div>
+
+			<div ng-repeat="entry in result.data['link']">
+				<h3>{{ entry.value }}</h3>
+				<i>{{ entry.date | date : 'shortDate' }}</i>
+			</div-->
+			<div class="row item" ng-repeat="entry in result.data['name']" ng-class="{ 'latest': $first }">
+				<div class="col-md-3"><h3>Name</h3></div>
+				<div class="col-md-9">
+					{{ entry.value }}
+					{{ entry.date }}
+				</div>
+			</div>
+			<div class="row footer">
+				<div class="col-md-3">{{ result.township }}</div>
+				<div class="col-md-9">Active from {{ result.first_seen | date : 'shortDate' }} to {{ result.last_seen | date : 'shortDate' }}</div>
+			</div>
 		</div>
 	</div>
 </div>

@@ -1,10 +1,11 @@
 from django.contrib.gis.geos import GEOSGeometry
+from models import PermitArea, PermitData
 from django.contrib.gis import geos
 from django.core.cache import cache
 from shapely.ops import transform
 from bs4 import BeautifulSoup
 from functools import reduce
-from models import Permit
+from datetime import date
 from fastkml import kml
 
 DEFAULT_FOLDERS = [
@@ -76,6 +77,41 @@ def import_fastkml_doc(doc):
 		if geom and isinstance(geom, geos.Polygon):
 			geom = geos.MultiPolygon(geom)
 
+		# Use a helper method to extract all the data we can find from this 
+		# placemark as individual fields (instead of HTML formatted text).
+		fields = extract_fields(placemark)
+
+		# This little query finds all regions currently in the database that intersect with 
+		# our region. It also calculates those intersections as geometries. We're going to 
+		# use this to de-duplicate on region.
+		overlaps = PermitArea.objects.filter(region__intersects=geom).intersection(geom)
+		match = None # we'll keep track of the best match here
+		for permit in overlaps:
+			if permit.intersection.area > 0 and geom.area / permit.intersection.area > 0.98:
+				# They overlap, so check to see if the regions are the same size?
+				#if (permit.region.area - geom.area) / permit.region.area < 0.02: # % error
+				if abs((permit.region.area - geom.area) / ((permit.region.area + geom.area) / 2)) < 0.02:
+					if match is None or permit.intersection.area > match.intersection.area:
+						match = permit
+
+		# Create the PermitArea if there's no match, or update the existing one
+		category = fields['category'] if 'category' in fields else 'Unknown'
+		use_date = date.today()
+		if match is None:
+			area = PermitArea(region=geom, category=category, first_seen=date.today(),
+				last_seen=date.today())
+		else:
+			area = match # Re-use this existing region, it matches our input
+			area.last_seen = use_date
+			area.category = category
+		area.save() # Save our changes to the region
+
+		data = PermitData(saved_on=use_date, owner=area)
+		for field, value in extract_fields(placemark).iteritems():
+			# Set each extracted field into the model object
+			setattr(data, field, value)
+		data.save() # save the data
+
 		# Do a quick/dirty duplicate check by looking for any existing permit with this same 
 		# geometry and HTML description. It appears to be a farily decent heuristic for 
 		# identity without having to check every field.
@@ -85,25 +121,22 @@ def import_fastkml_doc(doc):
 		# tracking duplicate permits for a region, or duplicate data for all permits in the 
 		# same overlapping region, etc. Lots of options depending on how we want to use the 
 		# data in the application.
-		if not Permit.objects.filter(description=placemark.description, region=geom).exists():
-			# Create a django model object with the geometry and the description
-			permit = Permit(region=geom, description=placemark.description)
+		#if not Permit.objects.filter(description=placemark.description, region=geom).exists():
 
-			# Use a helper method to extract all the data we can find from this 
-			# placemark as individual fields (instead of HTML formatted text).
-			fields = extract_fields(placemark)
-			for field, value in extract_fields(placemark).iteritems():
-				# Set each extracted field into the model object
-				setattr(permit, field, value)
+		# Create a django model object with the geometry and the description
+#		permit = Permit(region=geom, description=placemark.description)
+#		for field, value in extract_fields(placemark).iteritems():
+#			# Set each extracted field into the model object
+#			setattr(permit, field, value)
 
 
-			# Save the record to the database. 
-			permit.save()
+		# Save the record to the database. 
+		#permit.save()
 
 
 	# Manually update full text search after all imports are complete. See
 	# models.py for the reason this is necessary.
-	Permit.text.update_search_field()
+	PermitData.text.update_search_field()
 
 	# Manually clear django's caches to serve new data
 	cache.clear()

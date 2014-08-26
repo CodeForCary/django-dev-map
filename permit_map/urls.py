@@ -15,7 +15,8 @@ urlpatterns = [
 	#   more complex view data, we could customize it, but this is more than enough for now.
 	# - We're caching the results of this view for one month. This will also cause the page to be rendered using HTTP
 	#   headers that cause it to be cached in the user's browser. See the cache_page docs for more.
-	url(r'^permits/geojson', cache_page(2592000)(GeoJSONLayerView.as_view(model=models.Permit, geometry_field='region', properties=['category', 'id'])), name='geojson'),
+	url(r'^permits/geojson', cache_page(2592000)(GeoJSONLayerView.as_view(model=models.PermitArea, geometry_field='region', 
+		properties=['category', 'id', 'township'])), name='geojson'),
 	# Full text search entry point, delegates to views.search (views.py)
 	# Permit lookup point, delegates to views.permitsat (views.py)
 	url(r'^search', views.search, name='search'),

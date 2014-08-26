@@ -1,30 +1,30 @@
 from djgeojson.serializers import Serializer as GeoJSONSerializer
 from djgeojson.http import HttpJSONResponse
 from django.contrib.gis.geos import Point
+from models import PermitArea, PermitData
 from django.shortcuts import render
 from django.http import HttpResponse
-from models import Permit
 import json
 
 def search(request):
 	'''Return the results of a full text search as JSON'''
 	response = {}
-	if 'q' in request.GET:
-		query = request.GET['q']
-		if query:
-			permits = Permit.text.search(query) # full text search in one line!
-			
-			# Get list of match ids
-			ids = permits.values_list('id', flat=True)
-			if len(ids) > 0:
-				bounds = Permit.objects.filter(id__in=ids).extent()
-			else:
-				bounds = []
-
-			# convert each matching Permit into a small_dict and convert to JSON.
-			response['region'] = [ p.to_small_dict() for p in permits ]
-			response['bound'] = list(bounds)
-			#response = json.dumps(response)
+#	if 'q' in request.GET:
+#		query = request.GET['q']
+#		if query:
+#			permits = Permit.text.search(query) # full text search in one line!
+#			
+#			# Get list of match ids
+#			ids = permits.values_list('id', flat=True)
+#			if len(ids) > 0:
+#				bounds = Permit.objects.filter(id__in=ids).extent()
+#			else:
+#				bounds = []
+#
+#			# convert each matching Permit into a small_dict and convert to JSON.
+#			response['region'] = [ p.to_small_dict() for p in permits ]
+#			response['bound'] = list(bounds)
+#			#response = json.dumps(response)
 	return HttpResponse(json.dumps(response), content_type='application/json')
 
 def permitsat(request):
@@ -35,7 +35,7 @@ def permitsat(request):
 		lat = request.GET['lat']
 		if lat and lon:
 			# GIS query asking for all Permits with a region that contains the requested point
-			permits = Permit.objects.filter(region__contains=Point(float(lon), float(lat)))
+			permits = PermitArea.objects.filter(region__contains=Point(float(lon), float(lat)))
 			# convert each matching Permit into a small_dict and convert to JSON.
-			response = json.dumps([ p.to_small_dict() for p in permits ])
+			response = json.dumps([ p.to_dict() for p in permits ])
 	return HttpResponse(response, content_type='application/json')

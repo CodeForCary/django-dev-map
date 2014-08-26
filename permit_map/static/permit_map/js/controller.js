@@ -218,4 +218,7 @@ angular.module('mapapp.controllers', [ 'mapapp.services'/*, 'ngSanitize'*/ ])
 		 * Now that everything is defined, draw the map.
 		 */
 		map_init();
-        });
+        })
+        .controller('NewUI', function($scope, $http, $location, $anchorScroll, $timeout, search, geojson, permits) {
+
+	});
