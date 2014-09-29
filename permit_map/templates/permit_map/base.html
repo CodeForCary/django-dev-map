@@ -1,22 +1,41 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<!-- TODO: if we define a mobile UI based on Ionic, then we should break this up into more templates -->
+		<!-- Assume mobile and don't allow zooming, scaling, etc. -->
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width, height=device-height">
 
-		<!-- Pull AngularJS from the Google CDN -->
+		<!-- For the Angular Slider -->
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+
+		<!-- Javascript -->
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.21/angular.js"></script>
-		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.3/angular-sanitize.js"></script>
-		<!-- AngularStrap depends on angular animate -->
 		<script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.20/angular-animate.min.js"></script>
-		<!-- AngularStrap UI Framework -->
-		<script src="//oss.maxcdn.com/angular.strap/2.0.0/angular-strap.min.js"></script>
-		<script src="//oss.maxcdn.com/angular.strap/2.0.0/angular-strap.tpl.min.js"></script>
-		<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet"/>
-		<!-- Locally hosted content -->
 		<script src="{{ STATIC_URL }}/permit_map/js/angular-ui-router.min.js"></script>
+		<script src="{{ STATIC_URL }}/permit_map/js/media.js"></script>
+		<!-- Pure CSS Framework -->
+		<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
+		<!--[if lte IE 8]>
+		    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/grids-responsive-old-ie-min.css">
+		<![endif]-->
+		<!--[if gt IE 8]><!-->
+		    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/grids-responsive-min.css">
+		<!--<![endif]-->
+		<!-- Ionic Icons -->
+		<!--link rel="stylesheet" href="http://code.ionicframework.com/ionicons/1.5.2/css/ionicons.min.css"-->
+		<!-- Fontawesome -->
+		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+		<!-- For the Angular Slider -->
+		<script src="{{ STATIC_URL }}/permit_map/js/angular.rangeSlider.js"></script>
+		<link href="{{ STATIC_URL }}/permit_map/css/angular.rangeSlider.css" rel="stylesheet">
+
+		<!-- Application styles come last to take precedent -->
 		<link href="{{ STATIC_URL }}/permit_map/css/app.css" rel="stylesheet"/>
+
+		<!-- Import google map API -->
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDjF4Rue-wRz5uvVM8bG1NPTwqt3kVw9R0&sensor=TRUE"></script>
 	</head>
-	<body>
+	<body {% block body_attrs %}{% endblock body_attrs %}>
 		<!-- Main body of the page is injected here by child templates -->
 		{% block content %}{% endblock content %}
 		<!-- 
@@ -33,9 +52,22 @@
 		<script>
 			angular.module('django', []).constant('urls', {
 				templates: "{{ STATIC_URL }}/permit_map/templates/",
-				permits_geojson: "{% url 'permit_map:geojson' %}",
-				search: "{% url 'permit_map:search' %}",
-				permitsat: "{% url 'permit_map:permitsat' %}"
+				permits_all: "{% url 'permit_map:all' %}",
+				permits_search: "{% url 'permit_map:search' %}",
+				permits_at: "{% url 'permit_map:at' %}",
+				permits_overview: "{% url 'permit_map:overview' %}"
+			})
+			.constant('mapdata', {
+				centroid: new google.maps.LatLng({{ centroid.y }}, {{ centroid.x }}),
+			/*
+				var swLatLng = new google.maps.LatLng(bbox[1], bbox[0]);
+				var neLatLng = new google.maps.LatLng(bbox[3], bbox[2]);
+				shared_data.extent = new google.maps.LatLngBounds(swLatLng, neLatLng);
+			 */
+				extent: new google.maps.LatLngBounds(
+					new google.maps.LatLng({{ bounds.1 }}, {{ bounds.0 }}),
+					new google.maps.LatLng({{ bounds.3 }}, {{ bounds.2 }})
+				)
 			});
 		</script>
 		<!-- Child templates add their own JS here -->

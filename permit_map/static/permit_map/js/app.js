@@ -15,17 +15,25 @@
  *   permit_map/templates/base.html to see where this comes from. It provides 
  *   the 'url' object within the config.
  */
-angular.module('mapapp', [ 'mgcrea.ngStrap', 'mapapp.controllers', 'ui.router', 'django' ])
+angular.module('mapapp', [ 'mapapp.controllers', 'mapapp.directives', 'ui.router', 'django', 'ui-rangeSlider', 'ngAnimate', 'mediaFilter' ])
 	.config(function($stateProvider, $urlRouterProvider, urls) {
 		$stateProvider
-                        .state('render', {
+                        .state('map', {
 				// Map to the render.html template in our STATIC directory
-                                templateUrl: urls.templates + '/render.html',
+                                templateUrl: urls.templates + '/map.html',
 				// Render with the MapRender controller (controllers.js)
-                                controller: 'MapRender',
+                                controller: 'Map',
 				// Use this URL
-                                url: '/render'
+                                url: '/map'
+                        })
+                        .state('mobile', {
+				// Map to the render.html template in our STATIC directory
+                                templateUrl: urls.templates + '/mobile.html',
+				// Render with the MapRender controller (controllers.js)
+                                controller: 'Map',
+				// Use this URL
+                                url: '/mobile'
                         });
 			// Map all requests not coming via Ajax to '/render'
-			$urlRouterProvider.otherwise('/render');
+			$urlRouterProvider.otherwise('/map');
 	});

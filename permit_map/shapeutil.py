@@ -88,60 +88,87 @@ class PermitGenerator(object):
 		processor = cls(shapefile=shapefile, usedate=usedate)
 		processor.process()
 
+		# Calculate the search index
+		PermitData.text.update_search_field()
+
+		# Manually clear django's caches to serve new data
+		cache.clear()
+
 class KmlGenerator(PermitGenerator):
-	def __init__(self, township, usedate, shapefile, catfilter):
-		super(KmlGenerator, self).__init__(township, usedate)
-		self.catfilter = catfilter
-		self.shapefile = shapefile
+    def __init__(self, township, usedate, shapefile, catfilter):
+        super(KmlGenerator, self).__init__(township, usedate)
+        self.catfilter = catfilter
+        self.shapefile = shapefile
 
-	def extract_fields(self, placemark):
-		return {}
+    def extract_fields(self, placemark):
+        return {}
 
-	def get_category(self, data_dict):
-		if 'category' in data_dict:
-			category = data_dict['category']
-			if category in self.catfilter:
-				return category
-		return None
+    def get_category(self, data_dict):
+        if 'category' in data_dict:
+                category = data_dict['category']
+                if category in self.catfilter or len(self.catfilter) == 0:
+                        return category
+        return None
 
-	def data_generator(self, data):
-		for feature in data.features():
-			if isinstance(feature, kml.Placemark):
-				data_dict = self.extract_fields(feature)
-				category = self.get_category(data_dict)
-				if category is not None:
-					yield (category, feature.geometry, data_dict)
-			else:
-				for obj in self.data_generator(feature):
-					yield obj
+    def data_generator(self, data):
+        for feature in data.features():
+            if isinstance(feature, kml.Placemark):
+                data_dict = self.extract_fields(feature)
+                category = self.get_category(data_dict)
+                if category is not None:
+                    yield (category, feature.geometry, data_dict)
+            else:
+                for obj in self.data_generator(feature):
+                    yield obj
 
-	def sanatize(self, kml_txt):
-		return re.sub('(xsd|gx):', '', kml_txt)
-	
-	def records(self):
-		with open(self.shapefile, 'r') as kml_file:
-			kml_data = self.sanatize(kml_file.read())
-			obj = kml.KML()
-			obj.from_string(kml_data)
-			for result in self.data_generator(obj):
-				yield result
+    def sanatize(self, kml_txt):
+        return re.sub('(xsd|gx):', '', kml_txt)
+    
+    def records(self):
+        with open(self.shapefile, 'r') as kml_file:
+            kml_data = self.sanatize(kml_file.read())
+            obj = kml.KML()
+            obj.from_string(kml_data)
+            for result in self.data_generator(obj):
+                yield result
 
 class CaryGenerator(KmlGenerator):
-	def __init__(self, shapefile, usedate, mapping={ 'ProjectName': 'name', 'Comments': 
-		'comment', 'Type': 'category', 'ID': 'proj_id', 'Link': 'link', }):
-		super(CaryGenerator, self).__init__('Cary', usedate, shapefile, { 'Site/Sub Plan', 'Rezoning Case' })
-		self.mapping = mapping
+    def __init__(self, shapefile, usedate, mapping={ 'ProjectName': 'name', 'Comments': 
+        'comment', 'Type': 'category', 'ID': 'proj_id', 'Link': 'link', }):
+        super(CaryGenerator, self).__init__('Cary', usedate, shapefile, { 'Site/Sub Plan', 'Rezoning Case' })
+        self.mapping = mapping
 
-	def extract_fields(self, placemark):
-		result = {}
-		extdata = placemark.extended_data.elements[0].data
-		for entry in extdata:
-			key = entry['name'] # figure out the key name
-			# If it's a key that we recognize, add the value to the result set with 
-			# the sanatized key name.
+    def extract_fields(self, placemark):
+        result = {}
+        extdata = placemark.extended_data.elements[0].data
+        for entry in extdata:
+                key = entry['name'] # figure out the key name
+                # If it's a key that we recognize, add the value to the result set with 
+                # the sanatized key name.
+                if key in self.mapping:
+                        result[self.mapping[key]] = entry['value']
+        return result
+
+class ApexGenerator(KmlGenerator):
+    def __init__(self, shapefile, usedate, mapping={ 'More_Info': 'link', 
+        'Type': 'category', 'Status': 'status', 'FID': 'proj_id', 'Name': 'name' }):
+        super(ApexGenerator, self).__init__('Apex', usedate, shapefile, { 'Residential', 'Non-Residential', 'Town of Apex', 'Mixed Use' })
+        self.mapping = mapping
+
+    def extract_fields(self, placemark):
+	'''Apex only provides HTML description data at the moment. Parse it out.'''
+	xml = BeautifulSoup(placemark.description) # Not strict XML, use HTML parser
+	result = {}
+	# The data is stored as rows in a nested table. Get the rows from that table
+	for tr in xml.find_all('table')[1].find_all('tr'): 
+		td = tr.find_all('td') # Get the fields (<td>=<td> pairs)
+		if len(td) == 2: # if we have 2 tds
+			key = td[0].get_text() # field name is in the first td
 			if key in self.mapping:
-				result[self.mapping[key]] = entry['value']
-		return result
+				# Use the key name to pivot on our map above
+				result[self.mapping[key]] = td[1].get_text()
+	return result
+
 
 def fix_polygon(geom):
 	'''Standardize Shapely polygon into 2d'''

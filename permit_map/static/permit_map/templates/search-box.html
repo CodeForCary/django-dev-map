@@ -1,0 +1,59 @@
+<div class="card search">
+	<div class="item">
+		<form class="pure-form">
+			<div class="pure-g padded-g search-box-container">
+				<div class="pure-u-5-6">
+					<input ng-model="query" class="no-margin pure-input-1" type="text" placeholder="Search">
+				</div>
+				<div class="pure-u-1-6">
+					<button ng-click="search()" type="submit" class="no-margin pure-input-1 pure-button pure-button-primary">
+						<i class="fa fa-search"></i>
+					</button>
+				</div>
+			</div>
+		</form>
+	</div>
+	<form class="item pure-form pure-form-stacked pure-g padded-g collapsible search-options" ng-if="filter.display">
+		<fieldset>
+			<div class="pure-u-1">
+				<legend>Activity</legend>
+			</div>
+			<div class="pure-u-1 pure-u-sm-1-2 pure-u-md-1-3" ng-repeat="cat in binding.categories">
+				<label for="cat_{{ $index }}" class="pure-checkbox">
+					<input id="cat_{{ $index }}" type="checkbox" ng-model="cat.value">
+						{{ cat.name }}
+					</input>
+				</label>
+			</div>
+		</fieldset>
+		<fieldset>
+			<div class="pure-u-1">
+				<legend>Municipality</legend>
+			</div>
+			<div class="pure-u-1 pure-u-sm-1-2 pure-u-md-1-3" ng-repeat="town in binding.towns">
+				<label for="category" class="pure-checkbox">
+					<input id="category" type="checkbox" ng-model="town.value">
+				       		{{ town.name }}
+					</input>
+				</label>
+			</div>
+		</fieldset>
+		<fieldset>
+			<div class="pure-u-1">
+				<legend>Time</legend>
+			</div>
+			<div class="pure-u-1">
+				<div range-slider min="binding.dateMinEpoch" max="binding.dateMaxEpoch" 
+					model-min="binding.dateMin" model-max="binding.dateMax"
+					step="2628000000" filter="date" filter-options="MMM, yyyy"></div>
+			</div>
+		</fieldset>
+	</form>
+	<a class="pure-g item item-footer" ng-click="filter.display = !filter.display">
+		<!--div class="pure-u-7-8">{{ filter.display ? 'Collapse' : 'Expand' }} options</div-->
+		<div class="pure-u-7-8">Options...</div>
+		<div class="pure-u-1-8" style="text-align: right"><i class="fa" 
+				ng-class="{ 'fa-angle-down': !filter.display, 
+				'fa-angle-up': filter.display }"></i></div>
+	</a>
+</div>

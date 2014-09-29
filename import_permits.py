@@ -29,9 +29,10 @@ if args.truncate:
 	PermitData.objects.all().delete()
 	PermitArea.objects.all().delete()
 
-from permit_map.shapeutil import CaryGenerator
+from permit_map.shapeutil import CaryGenerator, ApexGenerator
 PROCESSORS = {
-	CARY: CaryGenerator
+	CARY: CaryGenerator,
+	APEX: ApexGenerator
 }
 
 for kml_file in args.files:
