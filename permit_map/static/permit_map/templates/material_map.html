@@ -1,0 +1,71 @@
+<section>
+	<map id="ui" selected="container.selected" list="container.list"></map>
+	<md-whiteframe class="md-whiteframe-z1 searchbox" layout="row">
+		<div>
+			<!-- search icon -->
+		</div>
+		<div flex>
+			<form>
+				<input type="text" name="user" placeholder="Search" ng-model="model.query" ng-keyup="$event.keyCode == 13 && search()">
+			</form>
+		</div>
+		<div class="clear-search" ng-show="model.query" ng-click="clearSearch()">
+			<!--img ng-src="{{ 'close'|icon:'navigation' }}"/-->
+			<!-- clear icon -->
+		</div>
+	</md-whiteframe>
+	<!-- TODO Move to ng-include? May not be able to do so easily, due to nature of include? -->
+	<md-sidenav class="md-sidenav-left md-whiteframe-z2" md-component-id="left">
+		<md-toolbar>
+			<h1 class="md-toolbar-tools">Cary DevMap</h1>
+		</md-toolbar>
+		<!--
+		<md-list>
+			<md-item>
+				<md-item-content>
+					<md-button layout-fill aria-label="About">
+						<div layout-margin layout="row">
+							<img ng-src="{{ 'help'|icon:'action' }}">
+							<div flex class="sidenav-menu-entry">
+								About
+							</div>
+						</div>
+					</md-button>
+				</md-item-content>
+				<md-item-content>
+					<md-button layout-fill aria-label="Download Data">
+						<div layout-margin layout="row">
+							<img ng-src="{{ 'file_download'|icon:'file' }}">
+							<div flex class="sidenav-menu-entry">
+								Download Data
+							</div>
+						</div>
+					</md-button>
+				</md-item-content>
+			</md-item>
+		</md-list>
+		<section>
+			<md-subheader>Activity</md-subheader>
+			<md-list>
+				<md-item ng-repeat="cat in model.filters.categories">
+					<md-item-content>
+						<md-checkbox id="cat_{{ $index }}" aria-label="{{ cat.name }}" ng-model="cat.value">
+							{{ cat.name }}
+						</md-checkbox>
+					</md-item-content>
+				</md-item>
+			</md-list>
+			<md-subheader>Municipality</md-subheader>
+			<md-list>
+				<md-item ng-repeat="town in model.filters.towns">
+					<md-item-content>
+						<md-checkbox id="town_{{ $index }}" aria-label="{{ town.name }}" ng-model="town.value">
+							{{ town.name }}
+						</md-checkbox>
+					</md-item-content>
+				</md-item>
+			</md-list>
+		</section>
+		-->
+	</md-sidenav>
+</section>

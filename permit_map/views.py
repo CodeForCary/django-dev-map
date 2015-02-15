@@ -12,7 +12,7 @@ from itertools import chain
 import json
 
 def index(request):
-    return render_to_response('permit_map/index.html', {
+    return render_to_response('permit_map/material.html', {
         'centroid': PermitArea.objects.collect().centroid,
         'bounds': list(PermitArea.objects.extent())
     }, context_instance=RequestContext(request))
@@ -75,10 +75,9 @@ def overview(request):
 
         # Decode the user's location (if available) and list everything in 3 miles
         centroid = _decode_lat_lon(request)
-        closest =  []
+        #closest =  []
         bounds = []
         if centroid is not None and permit_glom.envelope.contains(centroid):
-            #closest = PermitArea.objects.distance(centroid).order_by('distance').first()
             closest = PermitArea.objects.filter(region__distance_lt=(centroid, D(mi=1))).distance(centroid).order_by('distance')
             bounds = list(closest.extent())
 
@@ -92,7 +91,8 @@ def overview(request):
 		'categories': sorted(PermitArea.objects.values_list('category', flat=True).distinct()),
 		'towns': sorted(PermitArea.objects.values_list('township', flat=True).distinct()),
                 'closest': {
-                    'permits': [ p.to_dict() for p in closest ],
+                    #'permits': [ p.to_dict() for p in closest ],
+                    'permits': [], # select none on overview
                     'bounds': bounds
                 },
 		'dates': [ d.isoformat() for d in sorted(dates) ],

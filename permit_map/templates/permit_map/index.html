@@ -1,6 +1,7 @@
-{% extends "permit_map/base.html" %}
+{% extends "permit_map/material.html" %}
 {% block content %}
-	<div ng-app="mapapp" ui-view>
+	<!--div ng-app="mapapp" ui-view-->
+	<div>
 		<!-- 
 			Angular takes over rendering right here. It digests 
 			the application and then injects the template for 
@@ -16,8 +17,8 @@
 
 		So right here is where our Angular app gets initialized:
 	-->
-	<script src="{{ STATIC_URL }}/permit_map/js/map-directives.js"></script>
+	<!--script src="{{ STATIC_URL }}/permit_map/js/map-directives.js"></script>
 	<script src="{{ STATIC_URL }}/permit_map/js/app.js"></script>
 	<script src="{{ STATIC_URL }}/permit_map/js/services.js"></script>
-	<script src="{{ STATIC_URL }}/permit_map/js/controller.js"></script>
+	<script src="{{ STATIC_URL }}/permit_map/js/controller.js"></script-->
 {% endblock end_js %}

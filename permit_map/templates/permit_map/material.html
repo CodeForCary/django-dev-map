@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+		<!-- Angular Material JS CSS -->
+		<link rel="stylesheet" href="{{ STATIC_URL }}permit_map/bower_components/angular-material/angular-material.css">
+		<link rel="stylesheet" href="{{ STATIC_URL }}permit_map/bower_components/angular-material/themes/green-theme.css">
+		<!--link rel="stylesheet" href="{{ STATIC_URL }}permit_map/bower_components/angular-material/themes/blue-theme.css"-->
+
+		<!-- Angular Icons CSS -->
+		<!--link rel="stylesheet" href="{{ STATIC_URL }}permit_map/bower_components/material-design-icons/sprites/css-sprite/sprite-action-black.css">
+		<link rel="stylesheet" href="{{ STATIC_URL }}permit_map/bower_components/material-design-icons/sprites/css-sprite/sprite-navigation-black.css"-->
+
+		<!-- Application CSS -->
+		<link rel="stylesheet" href="{{ STATIC_URL }}permit_map/css/material.css">
+		<link rel="stylesheet" href="{{ STATIC_URL }}permit_map/css/drawer.css">
+
+		<!-- Angular Material JS -->
+		<script src="{{ STATIC_URL }}permit_map/bower_components/angular/angular.js"></script>
+		<script src="{{ STATIC_URL }}permit_map/bower_components/angular-aria/angular-aria.js"></script>
+		<script src="{{ STATIC_URL }}permit_map/bower_components/angular-animate/angular-animate.js"></script>
+		<script src="{{ STATIC_URL }}permit_map/bower_components/hammerjs/hammer.js"></script>
+		<script src="{{ STATIC_URL }}permit_map/bower_components/angular-material/angular-material.js"></script>
+
+		<!-- Angular UI Router -->
+		<script src="{{ STATIC_URL }}permit_map/bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
+
+		<!-- Import Google Map API -->
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDjF4Rue-wRz5uvVM8bG1NPTwqt3kVw9R0&sensor=TRUE"></script>
+	</head>
+	<body id="body" ng-app="mapapp" ui-view>
+		<!-- 
+			Script block that connects django and angular. This
+			content is benig rendered by Django, not Angular. So we
+			can pass our URL routes using Django's url tag here.
+			This bit of trickery makes it so that if we change urls.py
+			the web UI will silently switch over to those new URLs.
+
+			There's also an Angular package for django that will do 
+			this sort of thing for us, more or less, but since we
+			only have a handful of URLs at the moment...
+		-->
+		<script>
+			angular.module('django', []).constant('urls', {
+				templates: "{{ STATIC_URL }}/permit_map/templates/",
+				permits_all: "{% url 'permit_map:all' %}",
+				permits_search: "{% url 'permit_map:search' %}",
+				permits_at: "{% url 'permit_map:at' %}",
+				permits_overview: "{% url 'permit_map:overview' %}",
+				images: "{{ STATIC_URL}}permit_map/images",
+				icons: "{{ STATIC_URL}}permit_map/bower_components/material-design-icons/"
+			})
+			.constant('mapdata', {
+				centroid: new google.maps.LatLng({{ centroid.y }}, {{ centroid.x }}),
+				extent: new google.maps.LatLngBounds(
+					new google.maps.LatLng({{ bounds.1 }}, {{ bounds.0 }}),
+					new google.maps.LatLng({{ bounds.3 }}, {{ bounds.2 }})
+				)
+			});
+		</script>
+		<!-- Here's our application Javascript -->
+		<script src="{{ STATIC_URL }}/permit_map/js/icon.js"></script>
+		<script src="{{ STATIC_URL }}/permit_map/js/app.js"></script>
+		<script src="{{ STATIC_URL }}/permit_map/js/controller.js"></script>
+		<script src="{{ STATIC_URL }}/permit_map/js/services.js"></script>
+		<script src="{{ STATIC_URL }}/permit_map/js/gmap.js"></script>
+		<script src="{{ STATIC_URL }}/permit_map/js/drawer.js"></script>
+	</body>
+</html>

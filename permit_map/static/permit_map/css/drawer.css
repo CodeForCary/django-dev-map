@@ -1,0 +1,11 @@
+drawer {
+	position: absolute;
+	background: #fff;
+	z-index: 100;
+	width: 100%;
+	bottom: 0;
+}
+
+drawer-header, drawer-content  {
+	flex-shrink: 0;
+}

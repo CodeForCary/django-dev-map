@@ -1,45 +1,121 @@
 /*
  * Provides the main logic for our UI.
  */
-angular.module('mapapp.controllers', [ 'mapapp.services' ])
+angular.module('mapapp.controllers', [ 'django', 'mapapp.services', 'mapapp.drawer', 'ngMaterial' ])
+.controller('Map', function($scope, mapdata, permits, model, urls, $mdSidenav, $location, $mdBottomSheet, $drawer) {
 	/*
-	 * This code will get executed when our application is initialized (see app.js). 
-	 *
-	 * Note that we have a declared dependency on 'mapapp.services', which is defined in services.js and 
-	 * gives us access to django over AJAX.
+	 * TODO: Move this to a directive
 	 */
-        .controller('Map', function($scope, $timeout, permits, model) {
-		$scope.filters = { display: false }; // set to empty object on page init
-		model.load().then(function(data) {
-			$scope.model = data;
-		});
-		$scope.colorOf = permits.colorOf;
-		permits.search('towne').then(function(xxx) {
-			console.log(xxx);
-		});
-//		permits.overview().then(function(data) {
-//			// convert the list of categories into a map we can filter onto
-//			data.cat_sel = {};
-//			for (i = 0; i < data.categories.length; i++) {
-//				data.cat_sel[data.categories[i]] = true;
-//			}
-//			// do the same thing with our townships
-//			data.town_sel = {};
-//			for (i = 0; i < data.towns.length; i++) {
-//				data.town_sel[data.towns[i]] = true;
-//			}
-//
-//			// dates come back from the server as strings -- the slider needs numbers
-//			data.dateMaxEpoch = data.dates[data.dates.length - 1].getTime();
-//			data.dateMinEpoch = data.dates[0].getTime();
-//			data.dateMax = data.dateMaxEpoch;
-//			data.dateMin = data.dateMinEpoch;
-//
-//			/*
-//			 * Inject all this data into the scope. We'll now use 
-//			 * this data to drive the search results and map 
-//			 * filtering.
-//			 */
-//			$scope.filters = data;
-//		});
+	/*var map = new google.maps.Map(document.getElementById('map'), {
+		disableDefaultUI: true,
+		zoom: 15
 	});
+	map.setCenter(mapdata.centroid);
+	map.fitBounds(mapdata.extent);
+	permits.all().then(function(data) {
+		map.data.addGeoJson(data);
+	});
+	map.data.addListener('click', function(event) {
+		var lat = event.latLng.lat();
+		var lon = event.latLng.lng();
+		$scope.$apply(function() {
+			permits.at(lat, lon).then(function(data) {
+				$scope.selected = data.permits;
+			});
+		});
+
+	});*/
+
+	/*
+	 * Load the shared model data into our scope.
+	 */
+	model.load().then(function(data) {
+		$scope.model = data;
+	});
+
+	/*
+	 * Open the left menu when clicked.
+	 */
+	$scope.toggleMenu = function() {
+		$mdSidenav('left').toggle();
+	};
+
+	/*
+	 * Execute a search and store the result in the model
+	 */
+	$scope.search = function() {
+		permits.search($scope.model.query).then(function(data) {
+			$scope.container.bounds = data.bounds;
+			$scope.container.list = data.permits;
+			if (data.permits.length == 1) {
+				$scope.container.selected = data.permits[0];
+			}
+		});
+	};
+
+	$scope.container = {
+		selected: null,
+		bounds: null,
+		list: []
+	};
+
+	/*
+	 * Clear search results and the list.
+	 */
+	$scope.clearSearch = function() {
+		$scope.model.query = '';
+		$scope.container = {
+			selected: null,
+			bounds: null,
+			list: []
+		};
+	};
+
+	var x = $mdBottomSheet.show({
+		templateUrl: urls.templates + '/material_list.html',
+		parent: '#ui'
+	});
+
+	/*$scope.openDrawer = function($event) {
+		$mdBottomSheet.show({
+   			template: '<md-bottom-sheet>Hello!</md-bottom-sheet>',
+			targetEvent: $event,
+			parent: '#ui'
+		});
+	};*/
+
+	/*$scope.$watch('container.selected', function(value) {
+		console.log(value);
+		if (value) {
+			var sheet = $mdBottomSheet.show({
+				template: '<md-bottom-sheet>Hello!</md-bottom-sheet>'
+			});
+			console.log(sheet);
+		} 
+	});*/
+
+	/*$scope.showList = function() {
+		$location.path('/map/test');
+	};
+
+	$scope.list = {
+		closeEl: '#close',
+		overlay: {
+			templateUrl: urls.templates + '/material_list.html'
+		}
+	};*/
+})
+.controller('Permit', function($scope, $mdBottomSheet) {
+	$scope.test = 'foo';
+})
+/*.controller('List', function($scope, model, $location) {
+	model.load().then(function(data) {
+		$scope.model = data;
+		console.log($scope);
+	});
+
+	$scope.showMap = function() {
+		 $location.path('/map');
+	};
+})*/
+;

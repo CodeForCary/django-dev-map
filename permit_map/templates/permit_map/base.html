@@ -55,7 +55,8 @@
 				permits_all: "{% url 'permit_map:all' %}",
 				permits_search: "{% url 'permit_map:search' %}",
 				permits_at: "{% url 'permit_map:at' %}",
-				permits_overview: "{% url 'permit_map:overview' %}"
+				permits_overview: "{% url 'permit_map:overview' %}",
+				images: "{{ STATIC_URL}}/permit_map/images"
 			})
 			.constant('mapdata', {
 				centroid: new google.maps.LatLng({{ centroid.y }}, {{ centroid.x }}),

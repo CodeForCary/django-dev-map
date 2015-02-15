@@ -1,0 +1,114 @@
+#ui {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	left: 0;
+	top: 0;
+}
+
+.truncate {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.margin-small-all {
+	margin: 0.5em;
+}
+
+/*
+ * The search box
+ */
+.searchbox {
+	background: #ffffff;
+	position: absolute;
+	padding: 0.5em;
+	margin: 1em;
+	z-index: 1;
+	right: 0;
+	left: 0;
+	top: 0;
+}
+.searchbox input {
+	height: 1.5em;
+	width: 100%;
+	border: 0;
+}
+.searchbox .hamburger {
+	margin-right: 0.5em;
+}
+.searchbox .clear-search {
+	margin-left: 0.5em;
+}
+
+/*
+ * The left sidebar
+ */
+.sidenav-menu-entry {
+	text-transform: none;
+	text-align: left;
+}
+
+/*
+ * Drawer styles
+ */
+drawer-header {
+	height: 100px;
+}
+
+/*
+ * Permit Bottom Sheet
+.permit-sheet {
+	padding: 0;
+}
+
+.permit-header {
+	padding: 1em;
+}
+.permit-header * {
+	margin: 0.5em 0;
+	padding: 0;
+}
+.permit-header h1 {
+	font-size: 1em;
+}
+.permit-header h2 {
+	font-size: 0.8em;
+}
+
+.permit-content {
+	margin: 0 1em;
+}
+.permit-content .md-subheader {
+	font-size: 0.75em;
+	line-height: 1em;
+	padding: 0;
+	margin: 0;
+}
+ */
+
+/*
+ * Bottom box for holding overlay menus and options
+.bottom-box {
+	box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.26);
+	padding: 0;
+	z-index: 1;
+}
+.bottom-box > * {
+	text-align: left;
+	padding: 1em;
+}
+.bottom-title > * {
+	padding: 0 0.5em;
+	margin: 0;
+}
+.bottom-title h4 {
+	padding-top: 0.5em;
+}
+.bottom-title h5 {
+	padding-bottom: 0.5em;
+}
+.fab-offset {
+	margin: -28px 0.5em 0 0.5em;
+}
+ */

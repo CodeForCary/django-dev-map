@@ -1,5 +1,5 @@
 angular.module('mapapp.directives', [ 'mapapp.services', 'django' ])
-.directive('mapView', [ '$timeout', '$q', 'permits', 'mapdata', 'model', function($timeout, $q, permits, mapdata, model, urls) {
+.directive('mapView', [ '$timeout', '$q', 'permits', 'mapdata', 'model', 'gis', 'urls', function($timeout, $q, permits, mapdata, model, gis, urls) {
 	function is_enabled(name, filters) {
 		enabled = false;
 		for (var i = 0; i < filters.length; i++) {
@@ -18,12 +18,13 @@ angular.module('mapapp.directives', [ 'mapapp.services', 'django' ])
 		},
 		link: function($scope, $element, $attrs) {
 			var map = new google.maps.Map($element[0], {
-				disableDefaultUI: true,
+				//disableDefaultUI: true,
 				//zoomControl: true,
 				zoom: 15
 			});
 			map.setCenter(mapdata.centroid);
 			map.fitBounds(mapdata.extent);
+			var youAreHere = null;
 
 			permits.all().then(function(data) {
 				var regions = map.data.addGeoJson(data);
@@ -34,8 +35,8 @@ angular.module('mapapp.directives', [ 'mapapp.services', 'django' ])
 				$scope.regions = regions;
 			});
 
-			var unwatch = $scope.$watch('binding.colorOf', function(centroid) {
-				if (centroid) {
+			var unwatch = $scope.$watch('binding.colorOf', function(val) {
+				if (val) {
 					map.data.setStyle(function(feature) {
 						return {
 							fillColor: $scope.binding.colorOf(feature.getProperty('category')),
@@ -45,14 +46,30 @@ angular.module('mapapp.directives', [ 'mapapp.services', 'django' ])
 					map.data.addListener('click', function(event) {
 						var lat = event.latLng.lat();
 						var lon = event.latLng.lng();
-						console.log(lat + ' ' + lon);
+
+
 						$scope.$apply(function() {
-							permits.at(lat, lon).then(function(data) {
-								model.setList(data);
-							});
+							var id = event.feature.getProperty('id');
+							if (id in $scope.binding.listCache) {
+								model.setSelected($scope.binding.listCache[id]);
+							} else {
+								permits.at(lat, lon).then(function(data) {
+									model.setList(data);
+								});
+							}
 						});
 					});
-					//map.setCenter(centroid);
+					gis.locate().then(function(position) {
+						var latlng = model.toLatLng([ position.coords.latitude, position.coords.longitude ]);
+						youAreHere = new google.maps.Marker({ 
+							icon: {
+								scaledSize: new google.maps.Size(36, 43),
+								url: urls.images + "/you_are_here.png"
+							},
+							position: latlng,
+							map: map
+						});
+					});
 					unwatch();
 				}
 			});
@@ -64,6 +81,7 @@ angular.module('mapapp.directives', [ 'mapapp.services', 'django' ])
 					for (var i = 0; i < r.length; i++) {
 						var first = r[i].getProperty('first_seen');
 						var last = r[i].getProperty('last_seen');
+						var id = r[i].getProperty('id');
 
 						visible = is_enabled(r[i].getProperty('category'), f.categories) &&
 							  is_enabled(r[i].getProperty('township'), f.towns) &&
@@ -71,6 +89,12 @@ angular.module('mapapp.directives', [ 'mapapp.services', 'django' ])
 							   (last >= f.dateMin && last <= f.dateMax))
 						if (!visible) {
 							map.data.overrideStyle(r[i], { visible: false });
+						}
+						
+						// Handle any marker visible for this entry.
+						var listEntry = $scope.binding.listCache[id];
+						if (listEntry && listEntry.marker) {
+							listEntry.marker.setMap(visible ? map : null);
 						}
 					}
 				}
@@ -91,15 +115,24 @@ angular.module('mapapp.directives', [ 'mapapp.services', 'django' ])
 			$scope.$watch('binding.list.permits', function(l, o) {
 				if (o) {
 					for (var i = 0; i < o.length; i++) {
+						google.maps.event.removeListener(l[i].listener);
 						o[i].marker.setMap(null);
 					}
 				}
 				if (l) {
+					function listen(permit) {
+						return function() {
+							$scope.$apply(function() {
+								model.setSelected(permit);
+							});
+						};
+					}
 					for (var i = 0; i < l.length; i++) {
 						l[i].marker = new google.maps.Marker({ 
 							position: l[i].centroid, 
 							map: map
 						});
+						l[i].listener = google.maps.event.addListener(l[i].marker, 'click', listen(l[i]));
 					}
 				}
 			});
