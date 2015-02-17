@@ -1,5 +1,5 @@
-angular.module('mapapp.gmap', [ 'mapapp.services', 'django', 'ngMaterial', 'mapapp.drawer' ])
-.directive('map', [ 'gis', 'mapdata', 'permits', 'urls', '$mdBottomSheet', '$mdDrawer', function(gis, mapdata, permits, urls, $mdBottomSheet, $mdDrawer) {
+angular.module('mapapp.gmap', [ 'mapapp.services', 'django', 'ngMaterial', 'mapapp.drawer', 'mapapp.directives' ])
+.directive('map', [ 'gis', 'mapdata', 'permits', 'urls', '$mdBottomSheet', '$mdDrawer', '$filter', function(gis, mapdata, permits, urls, $mdBottomSheet, $mdDrawer, $filter) {
 	return {
 		transclude: true,
 		restrict: 'E',
@@ -36,7 +36,7 @@ angular.module('mapapp.gmap', [ 'mapapp.services', 'django', 'ngMaterial', 'mapa
 				// Sets the default styles/color for each region on the map
 				map.data.setStyle(function(feature) {
 					return {
-						fillColor: permits.colorOf(feature.getProperty('category')),
+						fillColor: $filter('cat_color')(feature.getProperty('category')),
 						strokeColor: '#000000',
 						strokeOpacity: 0.5,
 						fillOpacity: 0.5,
@@ -140,8 +140,6 @@ angular.module('mapapp.gmap', [ 'mapapp.services', 'django', 'ngMaterial', 'mapa
 						map: map
 					});
 					
-					console.log($scope.selected);
-
 					$mdDrawer.show({
                                 		templateUrl: urls.templates + '/material_list.html',
 						scope: $scope.$new(false),

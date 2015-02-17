@@ -12,6 +12,8 @@ from datetime import date
 from os import path
 import re
 
+from permit_map.models import SITE_SUBPLAN, REZONE 
+
 # file -> (category, geom, data_dict) -> include?(data_dict) -> PermitArea -> PermitData
 
 class PermitGenerator(object):
@@ -149,6 +151,14 @@ class CaryGenerator(KmlGenerator):
                         result[self.mapping[key]] = entry['value']
         return result
 
+    def get_category(self, data_dict):
+        if 'category' in data_dict:
+		return {
+			'Site/Sub Plan': SITE_SUBPLAN,
+			'Rezoning Case': REZONE 
+		}.get(data_dict['category'], None)
+        return None
+
 class ApexGenerator(KmlGenerator):
     def __init__(self, shapefile, usedate, mapping={ 'More_Info': 'link', 
         'Type': 'category', 'Status': 'status', 'FID': 'proj_id', 'Name': 'name' }):
@@ -168,6 +178,9 @@ class ApexGenerator(KmlGenerator):
 				# Use the key name to pivot on our map above
 				result[self.mapping[key]] = td[1].get_text()
 	return result
+
+    def get_category(self, data_dict):
+	    raise Error('need to implement categories for Apex')
 
 
 def fix_polygon(geom):

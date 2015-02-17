@@ -1,5 +1,5 @@
 <md-bottom-sheet id="drawer">
-	<md-toolbar>
+	<md-toolbar ng-style="{ 'background-color': (selected.category | cat_color) }">
 		<h1 class="md-toolbar-tools">
 			<span>{{ selected.data.name[0].value }}</span>
 		</h1>
@@ -11,7 +11,7 @@
 					<md-item layout="row">
 						<md-item-content flex>
 							<div class="md-tile-content">
-								A <b>{{ selected.category }}</b> in <b>{{ selected.township }}</b> 
+								A <b>{{ selected.category | cat_text }}</b> in <b>{{ selected.township }}</b> 
 								first observed on <b>{{ selected.first_seen | date : 'fullDate' }}</b> 
 								and last seen on <b>{{ selected.last_seen | date : 'fullDate' }}</b>.
 							</div>
@@ -20,18 +20,17 @@
 					<md-item ng-repeat="item in selected.data.comment" layout="row" ng-if="selected.data.comment.length > 0">
 						<md-item-content flex>
 							<div class="md-tile-content">
-								{{ item.value }}
+								"{{ item.value }}" &mdash; {{ item.date | date : 'fullDate' }}.
 							</div>
 						</md-item-content>
 					</md-item>
 					<md-item layout="row" ng-if="selected.data.name.length > 1">
 						<md-item-content flex>
 							<div class="md-tile-content">
-								Previously known as
-								<span ng-repeat="item in selected.data.name">
-									<b>{{ item.value }}</b><span ng-if="$middle">,</span>
-								</span>
-								.
+								Previously known as <span ng-repeat="item in selected.data.name | limitTo:(1 - selected.data.name.length)">
+									<span ng-if="$middle">, </span>
+									<span ng-if="$last && selected.data.name.length > 2"> and </span>
+									<b>{{ item.value }}</b></span>.
 							</div>
 						</md-item-content>
 					</md-item>

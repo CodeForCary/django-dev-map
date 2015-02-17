@@ -88,13 +88,6 @@ angular.module('mapapp.services', [ 'django' ])
 		}, error);
 		return future.promise;
 	}
-	function colorOf(category) {
-		if (category == 'Rezoning Case') {
-			return '#A3B489';
-		} else {
-			return '#A94629';
-		}
-	}
 	/*
 	 * TODO: Error handling.
 	 */
@@ -125,7 +118,6 @@ angular.module('mapapp.services', [ 'django' ])
 	}
 	return {
 		overview: overview,
-		colorOf: colorOf,
 		search: search,
 		all: all,
 		at: at

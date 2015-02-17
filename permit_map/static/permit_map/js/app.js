@@ -24,7 +24,7 @@
 			// Map all requests not coming via Ajax to '/render'
 			$urlRouterProvider.otherwise('/map');
 	});*/
-angular.module('mapapp', [ 'mapapp.controllers', 'mapapp.gmap', 'ngMaterial', 'ui.router', 'django', 'iconFilter' ])
+angular.module('mapapp', [ 'mapapp.directives', 'mapapp.controllers', 'mapapp.gmap', 'ngMaterial', 'ui.router', 'django', 'iconFilter' ])
 	.config(function($stateProvider, $urlRouterProvider, urls) {
 		$stateProvider
                         .state('map', {

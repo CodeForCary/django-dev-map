@@ -9,12 +9,16 @@ from django.contrib.gis.db import models
 CARY = 'Cary'
 APEX = 'Apex'
 
+SITE_SUBPLAN = 'subplan'
+REZONE = 'rezone'
+
 class PermitArea(models.Model):
 	'''Stores information about a single permit'''
 	# The region field stores the geometric shape(s) of the permit
 	region = models.MultiPolygonField(srid=4326, blank=False)
 	# We need the category in order to color the map
-	category = models.CharField(max_length=1024, blank=False)
+	#category = models.CharField(max_length=1024, blank=False)
+	category = models.CharField(max_length=7, choices=((SITE_SUBPLAN, SITE_SUBPLAN), (REZONE, REZONE)), blank=False)
 	# What township contains this region?
 	township = models.CharField(max_length=4, choices=((CARY, CARY), (APEX, APEX)), blank=False)
 

@@ -12,7 +12,7 @@ class Migration(SchemaMigration):
         db.create_table(u'permit_map_permitarea', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('region', self.gf('django.contrib.gis.db.models.fields.MultiPolygonField')()),
-            ('category', self.gf('django.db.models.fields.CharField')(max_length=1024)),
+            ('category', self.gf('django.db.models.fields.CharField')(max_length=6)),
             ('township', self.gf('django.db.models.fields.CharField')(max_length=4)),
             ('first_seen', self.gf('django.db.models.fields.DateField')()),
             ('last_seen', self.gf('django.db.models.fields.DateField')()),
@@ -46,7 +46,7 @@ class Migration(SchemaMigration):
     models = {
         u'permit_map.permitarea': {
             'Meta': {'object_name': 'PermitArea'},
-            'category': ('django.db.models.fields.CharField', [], {'max_length': '1024'}),
+            'category': ('django.db.models.fields.CharField', [], {'max_length': '6'}),
             'first_seen': ('django.db.models.fields.DateField', [], {}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'last_seen': ('django.db.models.fields.DateField', [], {}),
