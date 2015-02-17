@@ -11,8 +11,8 @@
 					<md-item layout="row">
 						<md-item-content flex>
 							<div class="md-tile-content">
-								A <b>{{ selected.category | cat_text }}</b> in <b>{{ selected.township }}</b> 
-								first observed on <b>{{ selected.first_seen | date : 'fullDate' }}</b> 
+								A <b>{{ selected.category | cat_text }}</b> in <b>{{ selected.township }}</b>.
+								First observed on <b>{{ selected.first_seen | date : 'fullDate' }}</b> 
 								and last seen on <b>{{ selected.last_seen | date : 'fullDate' }}</b>.
 							</div>
 						</md-item-content>
@@ -37,14 +37,16 @@
 				</md-list>
 			</section>
 			<section>
-				<md-subheader class="md-accent">More Information</md-subheader>
+				<h2 class="md-subheader md-accent">More Information</h2>
 				<md-list layout="column">
-					<md-item ng-repeat="item in selected.data.link">
-						<md-item-content flex>
-							<div class="md-tile-content">
-								<a href="{{ item.value }}">Open in new window</a>
-							</div>
-						</md-item-content>
+					<md-item ng-repeat="item in selected.data.info_link">
+						<!--div class="md-tile-left">
+							<img ng-src="{{ item.image }}" ng-if="item.image"/>
+						</div-->
+						<a href="{{ item.link }}" class="md-tile-content" target="_new">
+							<!--img ng-src="{{ item.image }}" ng-if="item.image"/-->
+							<div>{{ (item.title) || "More Information ..." }}</div>
+						</a>
 					</md-item>
 				</md-list>
 			</section>

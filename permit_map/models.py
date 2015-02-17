@@ -33,11 +33,14 @@ class PermitArea(models.Model):
 
 	def get_timeline_data(self):
 		result = dict([ (field, []) for field in PermitData.VALUE_FIELDS ])
+                result['info_link'] = []
 		for row in self.data.all().order_by('-saved_on'):
 			for field in PermitData.VALUE_FIELDS:
 				value = getattr(row, field)
 				if value is not None:
 					result[field].append({ 'value': value, 'date': row.saved_on.isoformat() })
+                        if (row.info_link is not None):
+                            result['info_link'].append(row.info_link.to_dict())
 		return result
 
 	def to_dict(self):
@@ -52,6 +55,19 @@ class PermitArea(models.Model):
 			'id': self.id
 		}
 
+class InfoLink(models.Model):
+	link = models.CharField(max_length=1024, null=True)
+	title = models.CharField(max_length=1024, null=True)
+	image = models.CharField(max_length=1024, null=True)
+	description = models.TextField(null=True)
+
+        def to_dict(self):
+            return {
+                    'description': self.description,
+                    'title': self.title,
+                    'image': self.image,
+                    'link': self.link
+            }
 
 class PermitData(models.Model):
 	# Attach this PermitData object to a specific PermitArea object
@@ -61,7 +77,8 @@ class PermitData(models.Model):
 	# currently pull data from. They are all character fields.
 	name = models.CharField(max_length=1024, null=True)
 	proj_id = models.CharField(max_length=1024, null=True)
-	link = models.CharField(max_length=1024, null=True)
+	#link = models.CharField(max_length=1024, null=True)
+        info_link = models.ForeignKey(InfoLink, null=True)
 	status = models.CharField(max_length=1024, null=True)
 	comment = models.TextField(null=True)
 	# We also store this here in case it changes over time.
@@ -75,7 +92,7 @@ class PermitData(models.Model):
 	# PermitArea object. Otherwise we'll get errors.
 	objects = GeoManager()
 
-	VALUE_FIELDS = ('name', 'comment', 'proj_id', 'link', 'status', 'category')
+	VALUE_FIELDS = ('name', 'comment', 'proj_id', 'status', 'category')
 
 	# In order to support full text search, we have a SECOND model 
 	# that allows for that access pattern. Attempts to use the GIS

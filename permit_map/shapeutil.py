@@ -1,5 +1,5 @@
+from models import PermitArea, PermitData, InfoLink
 from django.contrib.gis.geos import GEOSGeometry
-from models import PermitArea, PermitData
 from django.contrib.gis import geos
 from django.core.cache import cache
 from shapely.ops import transform
@@ -10,6 +10,7 @@ from fastkml import kml
 from datetime import datetime 
 from datetime import date
 from os import path
+import summary
 import re
 
 from permit_map.models import SITE_SUBPLAN, REZONE 
@@ -76,13 +77,40 @@ class PermitGenerator(object):
 			# only unique, new values for this region.
 			voided = 0 # If we void out all the data, then there's no point in saving the row
 			for key, value in data_dict.iteritems():
-				if PermitData.objects.filter(**{ key: value, 'owner': permit }).count() > 0:
-					data_dict[key] = None
+				data_dict[key] = self.get_field_value(permit, key, value)
+				if data_dict[key] is None:
 					voided += 1
+#				if PermitData.objects.filter(**{ key: value, 'owner': permit }).count() > 0:
+#					data_dict[key] = None
+#					voided += 1
 			if voided != len(data_dict):
 				data_dict['saved_on'] = self.usedate
 				data_dict['owner'] = permit
 				PermitData(**data_dict).save()
+
+	def get_field_value(self, owner, field, value):
+		if field == 'info_link':
+			if PermitData.objects.filter(owner=owner, info_link__link=value).count() == 0:
+				link = InfoLink.objects.filter(link=value).first()
+				if link is None:
+					link = InfoLink(
+						link=value
+					)
+					try:
+						print 'Fetching %s'%value
+						page = summary.Summary(value)
+						page.extract()
+
+						link.description = page.description
+						link.title = page.title
+						link.image = page.image
+					except:
+						pass
+					link.save()
+				return link
+		elif PermitData.objects.filter(**{ field: value, 'owner': owner }).count() == 0:
+			return value
+		return None
 
 	@classmethod
 	def load(cls, shapefile, usedate=None):
@@ -136,7 +164,7 @@ class KmlGenerator(PermitGenerator):
 
 class CaryGenerator(KmlGenerator):
     def __init__(self, shapefile, usedate, mapping={ 'ProjectName': 'name', 'Comments': 
-        'comment', 'Type': 'category', 'ID': 'proj_id', 'Link': 'link', }):
+        'comment', 'Type': 'category', 'ID': 'proj_id', 'Link': 'info_link', }):
         super(CaryGenerator, self).__init__('Cary', usedate, shapefile, { 'Site/Sub Plan', 'Rezoning Case' })
         self.mapping = mapping
 
@@ -160,7 +188,7 @@ class CaryGenerator(KmlGenerator):
         return None
 
 class ApexGenerator(KmlGenerator):
-    def __init__(self, shapefile, usedate, mapping={ 'More_Info': 'link', 
+    def __init__(self, shapefile, usedate, mapping={ 'More_Info': 'info_link', 
         'Type': 'category', 'Status': 'status', 'FID': 'proj_id', 'Name': 'name' }):
         super(ApexGenerator, self).__init__('Apex', usedate, shapefile, { 'Residential', 'Non-Residential', 'Town of Apex', 'Mixed Use' })
         self.mapping = mapping

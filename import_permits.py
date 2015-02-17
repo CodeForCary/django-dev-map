@@ -25,9 +25,10 @@ args = parser.parse_args()
 
 if args.truncate:
 	print 'Truncating Permit data.'
-	from permit_map.models import PermitData, PermitArea
+	from permit_map.models import PermitData, PermitArea, InfoLink
 	PermitData.objects.all().delete()
 	PermitArea.objects.all().delete()
+	InfoLink.objects.all().delete()
 
 from permit_map.shapeutil import CaryGenerator, ApexGenerator
 PROCESSORS = {
