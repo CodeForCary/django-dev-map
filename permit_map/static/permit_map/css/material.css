@@ -49,66 +49,45 @@
 	text-align: left;
 }
 
-/*
- * Drawer styles
- */
-drawer-header {
-	height: 100px;
+/* TODO kendm: Heights by media query */
+#drawer {
+	/* 
+	 * This is the total height of the bottom drawer.
+	 * It must equal the sum of the toolbar and the 
+	 * outer content wrapper.
+	 */
+	max-height: 500px;
+}
+#drawer md-toolbar {
+	/* Will probably always be 64? */
+	height: 64px;
+}
+#drawer md-content {
+	/* Set to whatever seems reasonable. */
+	height: 436px;
+}
+#drawer md-content md-content {
+	/* Equal to the height of the outer toolbar - 80,
+	 * which is a magic number from the material lib.
+	 * See MAX_OFFSET in drawer.js
+	 */
+	height: 356px;
 }
 
-/*
- * Permit Bottom Sheet
-.permit-sheet {
-	padding: 0;
-}
 
-.permit-header {
-	padding: 1em;
-}
-.permit-header * {
-	margin: 0.5em 0;
+#drawer {
 	padding: 0;
 }
-.permit-header h1 {
-	font-size: 1em;
+#drawer * .md-subheader {
+	padding: 0 16px;
 }
-.permit-header h2 {
-	font-size: 0.8em;
+#drawer md-item {
+	border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+	border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
-
-.permit-content {
-	margin: 0 1em;
-}
-.permit-content .md-subheader {
-	font-size: 0.75em;
-	line-height: 1em;
+#drawer md-list {
 	padding: 0;
-	margin: 0;
 }
- */
-
-/*
- * Bottom box for holding overlay menus and options
-.bottom-box {
-	box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.26);
-	padding: 0;
-	z-index: 1;
+#drawer b {
+	color: rgba(0, 0, 0, 0.65);
 }
-.bottom-box > * {
-	text-align: left;
-	padding: 1em;
-}
-.bottom-title > * {
-	padding: 0 0.5em;
-	margin: 0;
-}
-.bottom-title h4 {
-	padding-top: 0.5em;
-}
-.bottom-title h5 {
-	padding-bottom: 0.5em;
-}
-.fab-offset {
-	margin: -28px 0.5em 0 0.5em;
-}
- */

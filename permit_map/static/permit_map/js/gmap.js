@@ -1,5 +1,5 @@
-angular.module('mapapp.gmap', [ 'mapapp.services', 'django', 'ngMaterial' ])
-.directive('map', [ 'gis', 'mapdata', 'permits', 'urls', '$mdBottomSheet', function(gis, mapdata, permits, urls, $mdBottomSheet) {
+angular.module('mapapp.gmap', [ 'mapapp.services', 'django', 'ngMaterial', 'mapapp.drawer' ])
+.directive('map', [ 'gis', 'mapdata', 'permits', 'urls', '$mdBottomSheet', '$mdDrawer', function(gis, mapdata, permits, urls, $mdBottomSheet, $mdDrawer) {
 	return {
 		transclude: true,
 		restrict: 'E',
@@ -142,7 +142,7 @@ angular.module('mapapp.gmap', [ 'mapapp.services', 'django', 'ngMaterial' ])
 					
 					console.log($scope.selected);
 
-					$mdBottomSheet.show({
+					$mdDrawer.show({
                                 		templateUrl: urls.templates + '/material_list.html',
 						scope: $scope.$new(false),
 						parent: '#ui'

@@ -2,7 +2,7 @@
  * Provides the main logic for our UI.
  */
 angular.module('mapapp.controllers', [ 'django', 'mapapp.services', 'mapapp.drawer', 'ngMaterial' ])
-.controller('Map', function($scope, mapdata, permits, model, urls, $mdSidenav, $location, $mdBottomSheet, $drawer) {
+.controller('Map', function($scope, mapdata, permits, model, urls, $mdSidenav, $location, $mdBottomSheet, $mdDrawer) {
 	/*
 	 * TODO: Move this to a directive
 	 */
@@ -71,11 +71,6 @@ angular.module('mapapp.controllers', [ 'django', 'mapapp.services', 'mapapp.draw
 		};
 	};
 
-	var x = $mdBottomSheet.show({
-		templateUrl: urls.templates + '/material_list.html',
-		parent: '#ui'
-	});
-
 	/*$scope.openDrawer = function($event) {
 		$mdBottomSheet.show({
    			template: '<md-bottom-sheet>Hello!</md-bottom-sheet>',
@@ -105,17 +100,4 @@ angular.module('mapapp.controllers', [ 'django', 'mapapp.services', 'mapapp.draw
 		}
 	};*/
 })
-.controller('Permit', function($scope, $mdBottomSheet) {
-	$scope.test = 'foo';
-})
-/*.controller('List', function($scope, model, $location) {
-	model.load().then(function(data) {
-		$scope.model = data;
-		console.log($scope);
-	});
-
-	$scope.showMap = function() {
-		 $location.path('/map');
-	};
-})*/
 ;

@@ -883,7 +883,7 @@ var isIos = userAgent.match(/iPad/i) || userAgent.match(/iPhone/i) || userAgent.
 var isAndroid = userAgent.match(/Android/i);
 var shouldHijackClicks = isIos || isAndroid;
 
-if (shouldHijackClicks) {
+/*if (shouldHijackClicks) {
   document.addEventListener('click', function(ev) {
     // Space/enter on a button, and submit events, can send clicks
     var isKeyClick = ev.clientX === 0 && ev.clientY === 0;
@@ -893,7 +893,7 @@ if (shouldHijackClicks) {
     ev.preventDefault();
     ev.stopPropagation();
   }, true);
-}
+}*/
 
 angular.element(document)
   .on(START_EVENTS, gestureStart)

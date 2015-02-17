@@ -1,65 +1,54 @@
-<md-bottom-sheet style="max-height: 400px">
-	<md-toolbar class="md-warn">
-		<div class="md-toolbar-tools">
-			<span class="md-flex">Toolbar: md-warn</span>
-		</div>
+<md-bottom-sheet id="drawer">
+	<md-toolbar>
+		<h1 class="md-toolbar-tools">
+			<span>{{ selected.data.name[0].value }}</span>
+		</h1>
 	</md-toolbar>
-	<md-content style="height: 600px;padding: 24px;">
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
-		<p>OK</p>
+	<md-content>
+		<md-content>
+			<section>
+				<md-list layout="column">
+					<md-item layout="row">
+						<md-item-content flex>
+							<div class="md-tile-content">
+								A <b>{{ selected.category }}</b> in <b>{{ selected.township }}</b> 
+								first observed on <b>{{ selected.first_seen | date : 'fullDate' }}</b> 
+								and last seen on <b>{{ selected.last_seen | date : 'fullDate' }}</b>.
+							</div>
+						</md-item-content>
+					</md-item>
+					<md-item ng-repeat="item in selected.data.comment" layout="row" ng-if="selected.data.comment.length > 0">
+						<md-item-content flex>
+							<div class="md-tile-content">
+								{{ item.value }}
+							</div>
+						</md-item-content>
+					</md-item>
+					<md-item layout="row" ng-if="selected.data.name.length > 1">
+						<md-item-content flex>
+							<div class="md-tile-content">
+								Previously known as
+								<span ng-repeat="item in selected.data.name">
+									<b>{{ item.value }}</b><span ng-if="$middle">,</span>
+								</span>
+								.
+							</div>
+						</md-item-content>
+					</md-item>
+				</md-list>
+			</section>
+			<section>
+				<md-subheader class="md-accent">More Information</md-subheader>
+				<md-list layout="column">
+					<md-item ng-repeat="item in selected.data.link">
+						<md-item-content flex>
+							<div class="md-tile-content">
+								<a href="{{ item.value }}">Open in new window</a>
+							</div>
+						</md-item-content>
+					</md-item>
+				</md-list>
+			</section>
+		</md-content>
 	</md-content>
 </md-bottom-sheet>

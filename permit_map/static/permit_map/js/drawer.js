@@ -1,116 +1,297 @@
+/*!
+ * Angular Material Design
+ * https://github.com/angular/material
+ * @license MIT
+ * v0.7.0-rc3
+ */
 (function() {
 'use strict';
 
+/**
+ * @ngdoc module
+ * @name material.components.drawer
+ * @description
+ * Drawer
+ */
+//angular.module('material.components.drawer', [
 angular.module('mapapp.drawer', [
-	'material.core',
-	'material.components.backdrop'
+  'material.core',
+  'material.components.backdrop'
 ])
-	.directive('drawer', DrawerDirective)
-	.provider('$drawer', DrawerProvider);
+  .directive('mdDrawer', MdDrawerDirective)
+  .provider('$mdDrawer', MdDrawerProvider);
 
-function DrawerDirective() {
-	return {
-		restrict: 'E'
-	};
+function MdDrawerDirective() {
+  return {
+    restrict: 'E'
+  };
 }
 
-function DrawerProvider($$interimElementProvider) {
+/**
+ * @ngdoc service
+ * @name $mdDrawer
+ * @module material.components.drawer
+ *
+ * @description
+ * `$mdDrawer` opens a bottom sheet over the app and provides a simple promise API.
+ *
+ * ### Restrictions
+ *
+ * - The bottom sheet's template must have an outer `<md-bottom-sheet>` element.
+ * - Add the `md-grid` class to the bottom sheet for a grid layout.
+ * - Add the `md-list` class to the bottom sheet for a list layout.
+ *
+ * @usage
+ * <hljs lang="html">
+ * <div ng-controller="MyController">
+ *   <md-button ng-click="openDrawer()">
+ *     Open a Bottom Sheet!
+ *   </md-button>
+ * </div>
+ * </hljs>
+ * <hljs lang="js">
+ * var app = angular.module('app', ['ngMaterial']);
+ * app.controller('MyController', function($scope, $mdDrawer) {
+ *   $scope.openDrawer = function() {
+ *     $mdDrawer.show({
+ *       template: '<md-bottom-sheet>Hello!</md-bottom-sheet>'
+ *     });
+ *   };
+ * });
+ * </hljs>
+ */
 
-	return $$interimElementProvider('$drawer').setDefaults({
-		options: defaults
-	});
+ /**
+ * @ngdoc method
+ * @name $mdDrawer#show
+ *
+ * @description
+ * Show a bottom sheet with the specified options.
+ *
+ * @param {object} options An options object, with the following properties:
+ *
+ *   - `templateUrl` - `{string=}`: The url of an html template file that will
+ *   be used as the content of the bottom sheet. Restrictions: the template must
+ *   have an outer `md-bottom-sheet` element.
+ *   - `template` - `{string=}`: Same as templateUrl, except this is an actual
+ *   template string.
+ *   - `controller` - `{string=}`: The controller to associate with this bottom sheet.
+ *   - `locals` - `{string=}`: An object containing key/value pairs. The keys will
+ *   be used as names of values to inject into the controller. For example,
+ *   `locals: {three: 3}` would inject `three` into the controller with the value
+ *   of 3.
+ *   - `targetEvent` - `{DOMClickEvent=}`: A click's event object. When passed in as an option,
+ *   the location of the click will be used as the starting point for the opening animation
+ *   of the the dialog.
+ *   - `resolve` - `{object=}`: Similar to locals, except it takes promises as values
+ *   and the bottom sheet will not open until the promises resolve.
+ *   - `controllerAs` - `{string=}`: An alias to assign the controller to on the scope.
+ *   - `parent` - `{element=}`: The element to append the bottom sheet to. Defaults to appending
+ *     to the root element of the application.
+ *
+ * @returns {promise} A promise that can be resolved with `$mdDrawer.hide()` or
+ * rejected with `$mdDrawer.cancel()`.
+ */
 
-  	function defaults($animate, $mdConstant, $timeout, $compile, $mdTheming, $drawer) {
-		var backdrop;
+/**
+ * @ngdoc method
+ * @name $mdDrawer#hide
+ *
+ * @description
+ * Hide the existing bottom sheet and resolve the promise returned from
+ * `$mdDrawer.show()`.
+ *
+ * @param {*=} response An argument for the resolved promise.
+ *
+ */
 
-		return {
-			themable: true,
-			onShow: onShow,
-			onRemove: onRemove
-		};
+/**
+ * @ngdoc method
+ * @name $mdDrawer#cancel
+ *
+ * @description
+ * Hide the existing bottom sheet and reject the promise returned from
+ * `$mdDrawer.show()`.
+ *
+ * @param {*=} response An argument for the rejected promise.
+ *
+ */
 
-		function onShow(scope, element, options) {
-			backdrop = $compile('<md-backdrop class="md-opaque md-bottom-sheet-backdrop">')(scope);
-			backdrop.on('click', function() {
-				$timeout($drawer.cancel);
-			});
-			$mdTheming.inherit(backdrop, options.parent);
-			$animate.enter(backdrop, options.parent, null);
+function MdDrawerProvider($$interimElementProvider) {
 
-			var drawer = new Drawer(element);
-			options.element = drawer.element;
-			options.drawer = drawer;
+  drawerDefaults.$inject = ["$animate", "$mdConstant", "$timeout", "$$rAF", "$compile", "$mdTheming", "$mdDrawer", "$rootElement"];
+  return $$interimElementProvider('$mdDrawer')
+    .setDefaults({
+      options: drawerDefaults
+    });
 
-			return $animate.enter(drawer.element, options.parent)
-				.then(function() {
-					// do stuff
-					drawer.open();
-				});
-		}
+  /* @ngInject */
+  function drawerDefaults($animate, $mdConstant, $timeout, $$rAF, $compile, $mdTheming, $mdDrawer, $rootElement) {
+    var backdrop;
 
-		function onRemove(scope, element, options) {
-			var drawer = options.drawer;
-			$animate.leave(backdrop);
-			
-			return $animate.leave(drawer.element).then(function() {
-				drawer.cleanup();
-			});
-		}
+    return {
+      themable: true,
+      targetEvent: null,
+      onShow: onShow,
+      onRemove: onRemove,
+      escapeToClose: true
+    };
 
-		function Drawer(element) {
-			// coercion incase $mdCompiler returns multiple elements
-			var element = element.eq(0);
-			var header = element.children()[0];
+    function onShow(scope, element, options) {
+      // Add a backdrop that will close on click
+      backdrop = $compile('<md-backdrop class="md-opaque md-bottom-sheet-backdrop">')(scope);
+      backdrop.on('click touchstart', function() {
+        $timeout($mdDrawer.cancel);
+      });
 
-			//element.offsetHeight = header.offsetHeight;
+      $mdTheming.inherit(backdrop, options.parent);
 
-			/*element.on('touchstart', onTouchStart)
-				.on('touchmove', onTouchMove)
-				.on('touchend', onTouchEnd);*/
+      $animate.enter(backdrop, options.parent, null);
 
-			element.on('touchstart', onTouchStart)
-			       .on('touchmove', onTouchMove);
+      var drawer = new Drawer(element);
+      options.drawer = drawer;
 
-			function setHeight(height) {
-				element[0].style['height'] = height + 'px';
-			}
-			function getHeight() {
-				return parseInt(element[0].style['height']);
-			}
-			
-			function onTouchStart(e) {
-				this.startHeight = getHeight();
-			}
+      // Give up focus on calling item
+      options.targetEvent && angular.element(options.targetEvent.target).blur();
+      $mdTheming.inherit(drawer.element, options.parent);
 
-			function onTouchMove(e) {
-				console.log(e);
-				//var height = this.startHeight - e.pointer.distanceY;
-				//setHeight(height);
-			}
+      return $animate.enter(drawer.element, options.parent)
+        .then(function() {
+          var focusable = angular.element(
+            element[0].querySelector('button') ||
+            element[0].querySelector('a') ||
+            element[0].querySelector('[ng-click]')
+          );
+          focusable.focus();
 
-			return {
-				element: element,
-				cleanup: function cleanup() {
-					element.off('touchstart', onTouchStart)
-						.off('touchmove', onTouchMove)
-						.off('touchend', onTouchEnd); },
-				open: function() {
-					setHeight(header.offsetHeight);
-				}
-			};
+          if (options.escapeToClose) {
+            options.rootElementKeyupCallback = function(e) {
+              if (e.keyCode === $mdConstant.KEY_CODE.ESCAPE) {
+                $timeout($mdDrawer.cancel);
+              }
+            };
+            $rootElement.on('keyup', options.rootElementKeyupCallback);
+          }
+        });
 
-			/*function onTouchStart(e) {
-			}
+    }
 
-			function onTouchEnd(e) {
-			}
+    function onRemove(scope, element, options) {
+      var drawer = options.drawer;
+      $animate.leave(backdrop);
+      return $animate.leave(drawer.element).then(function() {
+        drawer.cleanup();
 
-			function onTouchMove(e) {
-			}*/
-		}
+        // Restore focus
+        options.targetEvent && angular.element(options.targetEvent.target).focus();
+      });
+    }
 
-	}
+    /**
+     * Drawer class to apply bottom-sheet behavior to an element
+     */
+    function Drawer(element) {
+      var MAX_OFFSET = 80; // amount past the bottom of the element that we can drag down, this is same as in _drawer.scss
+      //var MAX_OFFSET = 0; // amount past the bottom of the element that we can drag down, this is same as in _drawer.scss
+      var WIGGLE_AMOUNT = 20; // point where it starts to get "harder" to drag
+      var CLOSING_VELOCITY = 10; // how fast we need to flick down to close the sheet
+      var startY, lastY, velocity, transitionDelay, startTarget;
+
+      // coercion incase $mdCompiler returns multiple elements
+      element = element.eq(0);
+
+      var header = element.find('md-toolbar').eq(0);
+
+      header.on('touchstart', onTouchStart)
+             .on('touchmove', onTouchMove)
+             .on('touchend', onTouchEnd);
+
+      return {
+        element: element,
+        cleanup: function cleanup() {
+          header.off('touchstart', onTouchStart)
+                 .off('touchmove', onTouchMove)
+                 .off('touchend', onTouchEnd);
+        }
+      };
+
+      function onTouchStart(e) {
+        e.preventDefault();
+        startTarget = e.target;
+        startY = getY(e);
+
+        // Disable transitions on transform so that it feels fast
+        transitionDelay = element.css($mdConstant.CSS.TRANSITION_DURATION);
+        element.css($mdConstant.CSS.TRANSITION_DURATION, '0s');
+      }
+
+      function onTouchEnd(e) {
+        // Re-enable the transitions on transforms
+        element.css($mdConstant.CSS.TRANSITION_DURATION, transitionDelay);
+
+        var currentY = getY(e);
+        // If we didn't scroll much, and we didn't change targets, assume its a click
+        if ( Math.abs(currentY - startY) < 5  && e.target == startTarget) {
+          angular.element(e.target).triggerHandler('click');
+        } else {
+          // If they went fast enough, trigger a close.
+          if (velocity > CLOSING_VELOCITY) {
+            $timeout($mdDrawer.cancel);
+
+          // Otherwise, untransform so that we go back to our normal position
+          } else {
+            setTransformY(undefined);
+          }
+        }
+      }
+
+      function onTouchMove(e) {
+        var currentY = getY(e);
+        var delta = currentY - startY;
+
+        velocity = currentY - lastY;
+        lastY = currentY;
+
+        // Do some conversion on delta to get a friction-like effect
+        delta = adjustedDelta(delta);
+        setTransformY(delta + MAX_OFFSET);
+      }
+
+      /**
+       * Helper function to find the Y aspect of various touch events.
+       **/
+      function getY(e) {
+        var touch = e.touches && e.touches.length ? e.touches[0] : e.changedTouches[0];
+        return touch.clientY;
+      }
+
+      /**
+       * Transform the element along the y-axis
+       **/
+      function setTransformY(amt) {
+        if (amt === null || amt === undefined) {
+          element.css($mdConstant.CSS.TRANSFORM, '');
+        } else {
+          element.css($mdConstant.CSS.TRANSFORM, 'translate3d(0, ' + amt + 'px, 0)');
+        }
+      }
+
+      // Returns a new value for delta that will never exceed MAX_OFFSET_AMOUNT
+      // Will get harder to exceed it as you get closer to it
+      function adjustedDelta(delta) {
+        if ( delta < 0  && delta < -MAX_OFFSET + WIGGLE_AMOUNT) {
+          delta = -delta;
+          var base = MAX_OFFSET - WIGGLE_AMOUNT;
+          delta = Math.max(-MAX_OFFSET, -Math.min(MAX_OFFSET - 5, base + ( WIGGLE_AMOUNT * (delta - base)) / MAX_OFFSET) - delta / 50);
+        }
+
+        return delta;
+      }
+    }
+
+  }
 
 }
+MdDrawerProvider.$inject = ["$$interimElementProvider"];
 
 })();
