@@ -2,30 +2,7 @@
  * Provides the main logic for our UI.
  */
 angular.module('mapapp.controllers', [ 'django', 'mapapp.services', 'mapapp.drawer', 'ngMaterial' ])
-.controller('Map', function($scope, mapdata, permits, model, urls, $mdSidenav, $location, $mdBottomSheet, $mdDrawer) {
-	/*
-	 * TODO: Move this to a directive
-	 */
-	/*var map = new google.maps.Map(document.getElementById('map'), {
-		disableDefaultUI: true,
-		zoom: 15
-	});
-	map.setCenter(mapdata.centroid);
-	map.fitBounds(mapdata.extent);
-	permits.all().then(function(data) {
-		map.data.addGeoJson(data);
-	});
-	map.data.addListener('click', function(event) {
-		var lat = event.latLng.lat();
-		var lon = event.latLng.lng();
-		$scope.$apply(function() {
-			permits.at(lat, lon).then(function(data) {
-				$scope.selected = data.permits;
-			});
-		});
-
-	});*/
-
+.controller('Map', function($scope, mapdata, permits, model, urls, $mdSidenav, $location, $mdBottomSheet, $mdDrawer, $mdDialog) {
 	/*
 	 * Load the shared model data into our scope.
 	 */
@@ -53,51 +30,66 @@ angular.module('mapapp.controllers', [ 'django', 'mapapp.services', 'mapapp.draw
 		});
 	};
 
+	/*
+	 * Poorly named object for interop with the gmap directive.
+	 * Most of this should likely be moved to some sort of 
+	 * service.
+	 */
 	$scope.container = {
+		listener: {
+			onDrawerClose: function() {
+				$scope.drawerOpen = false;
+			},
+			onDrawerOpen: function() {
+				$scope.drawerOpen = true;
+			}
+		},
 		selected: null,
 		bounds: null,
-		list: []
+		list: [],
 	};
+	/*
+	 * This 'should' be in a service as well. Called by
+	 * the 'back' button to exit the drawer.
+	 */
+	$scope.closeDrawer = function() {
+		$scope.container.listener.clearSelected();
+	};
+
 
 	/*
 	 * Clear search results and the list.
 	 */
 	$scope.clearSearch = function() {
 		$scope.model.query = '';
-		$scope.container = {
-			selected: null,
-			bounds: null,
-			list: []
-		};
+		$scope.container.selected = null;
+		$scope.container.bounds = null;
+		$scope.container.list = [];
 	};
 
-	/*$scope.openDrawer = function($event) {
-		$mdBottomSheet.show({
-   			template: '<md-bottom-sheet>Hello!</md-bottom-sheet>',
-			targetEvent: $event,
-			parent: '#ui'
+	$scope.about = function(ev) {
+		$mdDialog.show({
+			templateUrl: urls.templates + '/about.html',
+			controller: DialogController,
+			targetEvent: ev
 		});
-	};*/
-
-	/*$scope.$watch('container.selected', function(value) {
-		console.log(value);
-		if (value) {
-			var sheet = $mdBottomSheet.show({
-				template: '<md-bottom-sheet>Hello!</md-bottom-sheet>'
-			});
-			console.log(sheet);
-		} 
-	});*/
-
-	/*$scope.showList = function() {
-		$location.path('/map/test');
+	};
+	$scope.download = function(ev) {
+		$mdDialog.show({
+			templateUrl: urls.templates + '/download.html',
+			controller: DialogController,
+			targetEvent: ev
+		});
 	};
 
-	$scope.list = {
-		closeEl: '#close',
-		overlay: {
-			templateUrl: urls.templates + '/material_list.html'
-		}
-	};*/
 })
 ;
+
+function DialogController($scope, $mdDialog, urls) {
+
+	$scope.geoJson = urls.permits_all;
+
+	$scope.hide = function() {
+		$mdDialog.hide();
+	};
+}

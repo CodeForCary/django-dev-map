@@ -25,7 +25,7 @@
 			$urlRouterProvider.otherwise('/map');
 	});*/
 angular.module('mapapp', [ 'mapapp.directives', 'mapapp.controllers', 'mapapp.gmap', 'ngMaterial', 'ui.router', 'django', 'iconFilter' ])
-	.config(function($stateProvider, $urlRouterProvider, urls) {
+	.config(function($stateProvider, $urlRouterProvider, urls, $mdThemingProvider) {
 		$stateProvider
                         .state('map', {
 				// Map to the render.html template in our STATIC directory
@@ -48,5 +48,8 @@ angular.module('mapapp', [ 'mapapp.directives', 'mapapp.controllers', 'mapapp.gm
 				}
 			})
 			;
+			$mdThemingProvider.theme('default')
+				.primaryPalette('green')
+				.accentPalette('lime');
 			//$urlRouterProvider.otherwise('/map');
 	});

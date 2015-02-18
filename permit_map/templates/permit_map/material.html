@@ -5,22 +5,32 @@
 
 		<!-- Angular Material JS CSS -->
 		<link rel="stylesheet" href="{{ STATIC_URL }}permit_map/bower_components/angular-material/angular-material.css">
-		<link rel="stylesheet" href="{{ STATIC_URL }}permit_map/bower_components/angular-material/themes/green-theme.css">
-		<!--link rel="stylesheet" href="{{ STATIC_URL }}permit_map/bower_components/angular-material/themes/blue-theme.css"-->
-
-		<!-- Angular Icons CSS -->
-		<!--link rel="stylesheet" href="{{ STATIC_URL }}permit_map/bower_components/material-design-icons/sprites/css-sprite/sprite-action-black.css">
-		<link rel="stylesheet" href="{{ STATIC_URL }}permit_map/bower_components/material-design-icons/sprites/css-sprite/sprite-navigation-black.css"-->
 
 		<!-- Application CSS -->
 		<link rel="stylesheet" href="{{ STATIC_URL }}permit_map/css/material.css">
 		<link rel="stylesheet" href="{{ STATIC_URL }}permit_map/css/drawer.css">
 
+		<!--
+			Use a much simpler/smaller icon set than the full Material set.
+		-->
+		<style>
+			@font-face {
+				font-family: 'icomoon';
+				src:url('{{ STATIC_URL }}permit_map/fonts/icomoon.eot?-1qkynv');
+				src:url('{{ STATIC_URL }}permit_map/fonts/icomoon.eot?#iefix-1qkynv') format('embedded-opentype'),
+					url('{{ STATIC_URL }}permit_map/fonts/icomoon.woff?-1qkynv') format('woff'),
+					url('{{ STATIC_URL }}permit_map/fonts/icomoon.ttf?-1qkynv') format('truetype'),
+					url('{{ STATIC_URL }}permit_map/fonts/icomoon.svg?-1qkynv#icomoon') format('svg');
+				font-weight: normal;
+				font-style: normal;
+			}
+		</style>
+		<link rel="stylesheet" href="{{ STATIC_URL }}permit_map/css/font.css">
+
 		<!-- Angular Material JS -->
 		<script src="{{ STATIC_URL }}permit_map/bower_components/angular/angular.js"></script>
 		<script src="{{ STATIC_URL }}permit_map/bower_components/angular-aria/angular-aria.js"></script>
 		<script src="{{ STATIC_URL }}permit_map/bower_components/angular-animate/angular-animate.js"></script>
-		<script src="{{ STATIC_URL }}permit_map/bower_components/hammerjs/hammer.js"></script>
 		<script src="{{ STATIC_URL }}permit_map/bower_components/angular-material/angular-material.js"></script>
 
 		<!-- Angular UI Router -->
@@ -29,7 +39,8 @@
 		<!-- Import Google Map API -->
 		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDjF4Rue-wRz5uvVM8bG1NPTwqt3kVw9R0&sensor=TRUE"></script>
 	</head>
-	<body id="body" ng-app="mapapp" ui-view>
+	<body ng-app="mapapp">
+		<div ui-view id="body"></div>
 		<!-- 
 			Script block that connects django and angular. This
 			content is benig rendered by Django, not Angular. So we

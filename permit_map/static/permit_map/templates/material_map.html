@@ -1,71 +1,49 @@
 <section>
-	<map id="ui" selected="container.selected" list="container.list"></map>
-	<md-whiteframe class="md-whiteframe-z1 searchbox" layout="row">
+	<map id="ui" selected="container.selected" list="container.list" bounds="container.bounds" listener="container.listener"></map>
+	<md-whiteframe class="md-whiteframe-z1 action-bar searchbox" layout="row" ng-hide="drawerOpen">
 		<div>
-			<!-- search icon -->
+			<md-button ng-click="toggleMenu()" aria-label="Open menu">
+				<i class="icon icon-24 icon-menu"></i>
+			</md-button>
 		</div>
-		<div flex>
-			<form>
-				<input type="text" name="user" placeholder="Search" ng-model="model.query" ng-keyup="$event.keyCode == 13 && search()">
+		<div layout="column" flex>
+			<form layout="column" flex>
+				<input type="text" name="user" flex placeholder="Search" ng-model="model.query" ng-keyup="$event.keyCode == 13 && search()">
 			</form>
 		</div>
-		<div class="clear-search" ng-show="model.query" ng-click="clearSearch()">
-			<!--img ng-src="{{ 'close'|icon:'navigation' }}"/-->
-			<!-- clear icon -->
+		<div class="clear-search" ng-show="model.query">
+			<md-button ng-click="clearSearch()" aria-label="Clear search">
+				<i class="icon icon-24 icon-clear"></i>
+			</md-button>
 		</div>
 	</md-whiteframe>
-	<!-- TODO Move to ng-include? May not be able to do so easily, due to nature of include? -->
+	<div class="action-bar exit" ng-show="drawerOpen">
+		<div>
+			<md-button ng-click="closeDrawer()" aria-label="Exit">
+				<i class="icon icon-24 icon-arrow-back"></i>
+			</md-button>
+		</div>
+	</div>
 	<md-sidenav class="md-sidenav-left md-whiteframe-z2" md-component-id="left">
-		<md-toolbar>
-			<h1 class="md-toolbar-tools">Cary DevMap</h1>
+		<md-toolbar class="md-tall">
+			<span flex></span>
+			<h2 class="md-toolbar-tools md-toolbar-tools-bottom">
+				<span class="md-flex">Cary Development Map</span>
+			</h2>
 		</md-toolbar>
-		<!--
-		<md-list>
-			<md-item>
-				<md-item-content>
-					<md-button layout-fill aria-label="About">
-						<div layout-margin layout="row">
-							<img ng-src="{{ 'help'|icon:'action' }}">
-							<div flex class="sidenav-menu-entry">
-								About
-							</div>
-						</div>
-					</md-button>
-				</md-item-content>
-				<md-item-content>
-					<md-button layout-fill aria-label="Download Data">
-						<div layout-margin layout="row">
-							<img ng-src="{{ 'file_download'|icon:'file' }}">
-							<div flex class="sidenav-menu-entry">
-								Download Data
-							</div>
-						</div>
-					</md-button>
-				</md-item-content>
-			</md-item>
-		</md-list>
-		<section>
-			<md-subheader>Activity</md-subheader>
+		<md-content class="md-padding">
 			<md-list>
-				<md-item ng-repeat="cat in model.filters.categories">
+				<md-item>
 					<md-item-content>
-						<md-checkbox id="cat_{{ $index }}" aria-label="{{ cat.name }}" ng-model="cat.value">
-							{{ cat.name }}
-						</md-checkbox>
+						<md-button class="menu-button" flex ng-click="about($event)">About</md-button>
+					</md-item-content>
+				</md-item>
+				<md-item>
+					<md-item-content>
+						<md-button class="menu-button" flex ng-click="download($event)">Download Data</md-button>
 					</md-item-content>
 				</md-item>
 			</md-list>
-			<md-subheader>Municipality</md-subheader>
-			<md-list>
-				<md-item ng-repeat="town in model.filters.towns">
-					<md-item-content>
-						<md-checkbox id="town_{{ $index }}" aria-label="{{ town.name }}" ng-model="town.value">
-							{{ town.name }}
-						</md-checkbox>
-					</md-item-content>
-				</md-item>
-			</md-list>
-		</section>
-		-->
+		</md-content>
 	</md-sidenav>
 </section>

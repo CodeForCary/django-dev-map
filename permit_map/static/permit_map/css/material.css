@@ -6,7 +6,15 @@
 	top: 0;
 }
 
-.truncate {
+.icon-24 {
+	font-size: 24px;
+}
+
+.menu-button {
+	text-align: left;
+}
+
+/*.truncate {
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -14,31 +22,40 @@
 
 .margin-small-all {
 	margin: 0.5em;
-}
+}*/
+
+.action-bar {
+	position: absolute;
+	z-index: 1;
+	right: 0;
+	left: 0;
+	top: 0;
+}	
 
 /*
  * The search box
  */
 .searchbox {
 	background: #ffffff;
-	position: absolute;
 	padding: 0.5em;
 	margin: 1em;
-	z-index: 1;
-	right: 0;
-	left: 0;
-	top: 0;
 }
 .searchbox input {
 	height: 1.5em;
 	width: 100%;
 	border: 0;
 }
-.searchbox .hamburger {
+.searchbox div:first-child {
 	margin-right: 0.5em;
 }
-.searchbox .clear-search {
+.searchbox div:last-child {
 	margin-left: 0.5em;
+}
+
+.exit {
+	background-image: -webkit-linear-gradient(bottom,transparent,rgba(0,0,0,0.7));
+	padding: 1.5em;
+	color: #fff;
 }
 
 /*
@@ -75,6 +92,10 @@
 }
 
 
+/*
+ * Special formatting and overrides for the 'drawer'
+ * at the bottom of the screen that holds permit data.
+ */
 #drawer {
 	padding: 0;
 }

@@ -1,0 +1,18 @@
+<md-dialog aria-label="Data Download">
+	<md-content>
+		<h2>Download Data</h2>
+		<p>
+			You may download the raw data that drives this site by
+			clicking below.
+		</p>
+	</md-content>
+	<div class="md-actions" layout="row">
+		<md-button ng-href="{{ geoJson }}" target="_new" download="cary-devmap.json">
+			GeoJSON
+		</md-button>
+		<md-button ng-click="hide()">
+			Close
+		</md-button>
+	</div>
+</md-dialog>
+

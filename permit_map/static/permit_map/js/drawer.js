@@ -15,8 +15,8 @@
  */
 //angular.module('material.components.drawer', [
 angular.module('mapapp.drawer', [
-  'material.core',
-  'material.components.backdrop'
+  'material.core'/*,
+  'material.components.backdrop'*/
 ])
   .directive('mdDrawer', MdDrawerDirective)
   .provider('$mdDrawer', MdDrawerProvider);
@@ -127,7 +127,7 @@ function MdDrawerProvider($$interimElementProvider) {
 
   /* @ngInject */
   function drawerDefaults($animate, $mdConstant, $timeout, $$rAF, $compile, $mdTheming, $mdDrawer, $rootElement) {
-    var backdrop;
+    //var backdrop;
 
     return {
       themable: true,
@@ -139,14 +139,14 @@ function MdDrawerProvider($$interimElementProvider) {
 
     function onShow(scope, element, options) {
       // Add a backdrop that will close on click
-      backdrop = $compile('<md-backdrop class="md-opaque md-bottom-sheet-backdrop">')(scope);
+      /*backdrop = $compile('<md-backdrop class="md-opaque md-bottom-sheet-backdrop">')(scope);
       backdrop.on('click touchstart', function() {
         $timeout($mdDrawer.cancel);
       });
 
       $mdTheming.inherit(backdrop, options.parent);
 
-      $animate.enter(backdrop, options.parent, null);
+      $animate.enter(backdrop, options.parent, null);*/
 
       var drawer = new Drawer(element);
       options.drawer = drawer;
@@ -178,7 +178,7 @@ function MdDrawerProvider($$interimElementProvider) {
 
     function onRemove(scope, element, options) {
       var drawer = options.drawer;
-      $animate.leave(backdrop);
+      //$animate.leave(backdrop);
       return $animate.leave(drawer.element).then(function() {
         drawer.cleanup();
 
