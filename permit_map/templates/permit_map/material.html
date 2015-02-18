@@ -59,8 +59,7 @@
 				permits_search: "{% url 'permit_map:search' %}",
 				permits_at: "{% url 'permit_map:at' %}",
 				permits_overview: "{% url 'permit_map:overview' %}",
-				images: "{{ STATIC_URL}}permit_map/images",
-				icons: "{{ STATIC_URL}}permit_map/bower_components/material-design-icons/"
+				images: "{{ STATIC_URL}}permit_map/images"
 			})
 			.constant('mapdata', {
 				centroid: new google.maps.LatLng({{ centroid.y }}, {{ centroid.x }}),
@@ -71,7 +70,6 @@
 			});
 		</script>
 		<!-- Here's our application Javascript -->
-		<script src="{{ STATIC_URL }}/permit_map/js/icon.js"></script>
 		<script src="{{ STATIC_URL }}/permit_map/js/app.js"></script>
 		<script src="{{ STATIC_URL }}/permit_map/js/filters.js"></script>
 		<script src="{{ STATIC_URL }}/permit_map/js/controller.js"></script>

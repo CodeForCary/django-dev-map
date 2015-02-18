@@ -16,29 +16,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 import urlparse # To parse postgres URL
 import random # To generate key
 
-# Preamble for SECRET_KEY work done below
-temp_keys = { 'SECRET_KEY': 'qb5qjs!f56(x0z1ssrb4*hav(+)%d0%bpy&wy4)x==b@t&xv0e' }
-use_keys = temp_keys # OpenShift sample does this copy. Necessary?
-
-if 'OPENSHIFT_APP_DNS' in os.environ:
-	# Generate a secret key randomly -- this should be strong enough for the moment
-	SECRET_KEY = ''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(50)])
-
-	# When in OpenShift, only allow connections from our host
-	ALLOWED_HOSTS = [
-		os.environ['OPENSHIFT_APP_DNS'],
-	]
-
-	# Also, disable all debugging
-	TEMPLATE_DEBUG = False
-	DEBUG = False
-else:
-	# Don't use this value in production, it's visible on GitHub. Good enough for dev.
-	SECRET_KEY = 'qb5qjs!f56(x0z1ssrb4*hav(+)%d0%bpy&wy4)x==b@t&xv0e'
-	# Else, in dev. Turn on DEBUG which disables ALLOWED_HOSTS
-	ALLOWED_HOSTS = [] # Defined, but empty
-	TEMPLATE_DEBUG = True
-	DEBUG = True
+# Don't use this value in production, it's visible on GitHub. Good enough for dev.
+SECRET_KEY = 'qb5qjs!f56(x0z1ssrb4*hav(+)%d0%bpy&wy4)x==b@t&xv0e'
+# Else, in dev. Turn on DEBUG which disables ALLOWED_HOSTS
+ALLOWED_HOSTS = [] # Defined, but empty
+TEMPLATE_DEBUG = True
+DEBUG = True
 
 # Application definition
 INSTALLED_APPS = (
@@ -78,25 +61,15 @@ WSGI_APPLICATION = 'cfac.wsgi.application'
 # spatial database. According to what I've read, Postgres is the best 
 # free platform for GIS queries. Mongo may also work. Feel free to try.
 DATABASES = {} # Start as an empty dict. Add based on environment
-if 'OPENSHIFT_POSTGRESQL_DB_URL' in os.environ:
-	url = urlparse.urlparse(os.environ['OPENSHIFT_POSTGRESQL_DB_URL'])
-	DATABASES['default'] = {
-		'ENGINE': 'django.contrib.gis.db.backends.postgis',
-		'NAME': os.environ['OPENSHIFT_APP_NAME'],
-		'USER': url.username,
-		'PASSWORD': url.password,
-		'HOST': url.hostname,
-		'PORT': url.port
-	}
-else:
-	# Obviously alter this to suit your local environment
-	DATABASES['default'] = {
-		'ENGINE': 'django.contrib.gis.db.backends.postgis',
-		'HOST': 'localhost',
-		'PASSWORD': 'cfac',
-		'NAME': 'cfac',
-		'USER': 'cfac'
-	}
+# Obviously alter this to suit your local environment
+DATABASES['default'] = {
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'HOST': 'localhost',
+        'PASSWORD': 'cfac',
+        'NAME': 'cfac',
+        'USER': 'cfac'
+}
+
 # Added due to problems where the postgis backend couldn't properly parse
 # the version out of the database. Manually specified. Change if you're 
 # using a different version of postgis.
@@ -114,16 +87,10 @@ POSTGIS_VERSION=(2, 1)
 # process and while it's not as fast as the memory cache, it is much 
 # better than building the geoJSON data every time.
 CACHES = {}
-if 'OPENSHIFT_DATA_DIR' in os.environ:
-	CACHES['default'] = {
-		'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-		'LOCATION': os.path.join(os.environ['OPENSHIFT_DATA_DIR'], 'cfac.cache')
-	}
-else:
-	CACHES['default'] = {
-		'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-		'LOCATION': '/tmp/cfac.cache'
-	}
+CACHES['default'] = {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': '/tmp/cfac.cache'
+}
 
 
 # Internationalization has been left at the defaults.
@@ -138,6 +105,3 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # Serve from the /static/ URL in both production and developpment
 STATIC_URL = '/static/'
-if 'OPENSHIFT_REPO_DIR' in os.environ:
-	# Collect static files here during OpenShift deployment.
-	STATIC_ROOT = os.path.join(os.environ['OPENSHIFT_REPO_DIR'], 'wsgi', 'static')
