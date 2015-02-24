@@ -45,13 +45,6 @@
 	width: 100%;
 	border: 0;
 }
-.searchbox div:first-child {
-	margin-right: 0.5em;
-}
-.searchbox div:last-child {
-	margin-left: 0.5em;
-}
-
 .exit {
 	background-image: -webkit-linear-gradient(bottom,transparent,rgba(0,0,0,0.7));
 	padding: 1.5em;

@@ -1,29 +1,33 @@
 <section>
 	<map id="ui" selected="container.selected" list="container.list" bounds="container.bounds" listener="container.listener"></map>
-	<md-whiteframe class="md-whiteframe-z1 action-bar searchbox" layout="row" ng-hide="drawerOpen">
-		<div>
-			<md-button ng-click="toggleMenu()" aria-label="Open menu">
-				<i class="icon icon-24 icon-menu"></i>
-			</md-button>
-		</div>
-		<div layout="column" flex>
-			<form layout="column" flex>
-				<input type="text" name="user" flex placeholder="Search" ng-model="model.query" ng-keyup="$event.keyCode == 13 && search()">
-			</form>
-		</div>
-		<div class="clear-search" ng-show="model.query">
-			<md-button ng-click="clearSearch()" aria-label="Clear search">
-				<i class="icon icon-24 icon-clear"></i>
-			</md-button>
-		</div>
-	</md-whiteframe>
-	<div class="action-bar exit" ng-show="drawerOpen">
-		<div>
-			<md-button ng-click="closeDrawer()" aria-label="Exit">
-				<i class="icon icon-24 icon-arrow-back"></i>
-			</md-button>
+	<div class="action-bar" layout="row">
+		<md-whiteframe class="md-whiteframe-z1 searchbox" layout="row" ng-hide="drawerOpen" flex flex-gt-md="50">
+			<div>
+				<md-button ng-click="toggleMenu()" aria-label="Open menu">
+					<i class="icon icon-24 icon-menu"></i>
+				</md-button>
+			</div>
+			<div layout="column" flex>
+				<form layout="column" flex>
+					<input type="text" name="user" flex placeholder="Search" ng-model="model.query" ng-keyup="$event.keyCode == 13 && search()">
+				</form>
+			</div>
+			<div class="clear-search" ng-show="model.query">
+				<md-button ng-click="clearSearch()" aria-label="Clear search">
+					<i class="icon icon-24 icon-clear"></i>
+				</md-button>
+			</div>
+		</md-whiteframe>
+		<div class="exit" ng-show="drawerOpen" flex>
+			<div>
+				<md-button ng-click="closeDrawer()" aria-label="Exit">
+					<i class="icon icon-24 icon-arrow-back"></i>
+				</md-button>
+			</div>
 		</div>
 	</div>
+
+
 	<md-sidenav class="md-sidenav-left md-whiteframe-z2" md-component-id="left">
 		<md-toolbar class="md-tall">
 			<span flex></span>
