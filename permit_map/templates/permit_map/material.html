@@ -68,6 +68,19 @@
 					new google.maps.LatLng({{ bounds.3 }}, {{ bounds.2 }})
 				)
 			});
+
+			/*
+			 * Angular Material has an annoying bug at the moment.
+			 *
+			 *  https://github.com/angular/material/issues/1528
+			 *
+			 * Although we *could* hack angular to work around it,
+			 * we're instead going to pretend that jQuery is 
+			 * installed, which disables AM's click hijacking.
+			 *
+			 * Hopefully this gets fixed and we can take this out.
+			 */
+			 window.jQuery = "Hack to work around issue #1528";
 		</script>
 		<!-- Here's our application Javascript -->
 		<script src="{{ STATIC_URL }}/permit_map/js/app.js"></script>

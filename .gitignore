@@ -1,4 +1,5 @@
 *.py[cod]
 *.swp
+*.*~
 permit_map/migrations/
 permit_map/static/permit_map/bower_components/
