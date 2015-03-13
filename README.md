@@ -110,6 +110,7 @@ $ mkdir ~/projects
 $ cd ~/projects
 $ git clone https://github.com/CodeForCary/django-dev-map.git
 $ boot2docker download
+$ boot2docker init
 $ boot2docker start
 $ boot2docker ip    <-- jot this down for future reference
 $ boot2docker ssh
