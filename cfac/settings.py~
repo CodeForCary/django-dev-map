@@ -64,7 +64,7 @@ DATABASES = {} # Start as an empty dict. Add based on environment
 # Obviously alter this to suit your local environment
 DATABASES['default'] = {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'HOST': 'postgres',
+        'HOST': 'localhost',
         'PASSWORD': 'cfac',
         'NAME': 'cfac',
         'USER': 'cfac'

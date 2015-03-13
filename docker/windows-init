@@ -1,0 +1,3 @@
+#!/bin/sh
+
+alias docker-compose="docker run -v \$(pwd):/\$(pwd) -w \$(pwd) -v /var/run/docker.sock:/var/run/docker.sock -ti dduportal/docker-compose:latest"
