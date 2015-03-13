@@ -1,11 +1,7 @@
 # Code for America - Cary Django Site
-Proof of concept for a Town of Cary [django](https://www.djangoproject.com/) 
-site/application. At the moment, a single application is included that 
-parses and displays geospatial data for building permits issued by the town.
 
-## Permit Map Application
 This application takes [KML](https://developers.google.com/kml/) permit data 
-issued by the towns of Cary and Apex and imports them into a 
+issued by the towns of Cary and imports them into a 
 [GeoDjango](http://geodjango.org/) application, which allows for native storage
 of geometric objects and provides query tools for calculating region overlap, 
 containment, etc. The app django exposes a simple API that supports such 
@@ -16,10 +12,12 @@ operations as:
 - Full-text search of the permit data.
 - Retreving all permits that are present at a specific latitude/longitude.
 
-A rudimentary web interface is also included to allow exercising these APIs. 
-The web interface leverages [AngularJs](https://angularjs.org/) and is 
-currently only comfortable for usage on the desktop. It is provided for 
-demonstration purposes only and could be vastly improved.
+A web interface is also included to allow exercising these APIs. 
+The web interface leverages [AngularJs](https://angularjs.org/),
+[Angular Material](https://material.angularjs.org/) and 
+[Google Maps](https://developers.google.com/maps) to provide a seamless,
+responsive UI targeted primarily toward a mobile user asking the question,
+"What is being built here?".
 
 ## Architecture
 The permit application is broken up into several pieces, with each part 
@@ -37,108 +35,162 @@ point are described below:
    permit\_map application also contains a single URL route (/) that renders
    the primary view: `permit_map/templates/permit_map/index.html`.
 3. **AngularJS App**: The front-end is rendered using AngularJS. Angular is 
-   invoked by the index.html template and control then shifts to a set of 
+   invoked by the material.html template and control then shifts to a set of 
    statically served JavaScript and HTML files. All of the front-end code 
    comes from a CDN or is stored in `permit_map/static/permit_map/*`. The 
    main entry points are `js/app.js`, `js/controller.js`, and 
-   `templates/render.html`.
+   `templates/material_map.html`.
 
-## Contributing
+## Local Development with Docker
 Pulling down the source code and analyzing the various objects within the 
 django shell is one of the fastest ways to understand how the applicaiton 
-works. There are two ways of getting a working application: local development
-and deploying to [RedHat OpenShift](https://www.openshift.com/). Local 
-development is preferred.
+works. The primary mode of local development is to automatially provision
+a local environment using [Docker](https://www.docker.com/).
 
-Note that it is probably best to clone this repository within it's own 
-sandbox. It makes both local and OpenShift development much easier. One 
-possible directory structure is:
+Docker is a software suite that allows you to rapidly spin up development
+environments. This git repo contains a set of "docker files" (see the 
+./docker directory) that describes how the various components (django, 
+database, etc.) of the dev map application are configured. Setting up an
+environment is as easy as pulling the repo and issuing a few commands.
+In theory anyway!
 
-```
-code-for-cary/				# your sandbox directory
-|-- cfa-cary-django-site		# this repository
-`-- open-shift				# open-shift staging
-```
+For a local deployment, you'll first need two primary components:
 
-### Local Development
-For a local deployment, you will first need a PostGIS 2.1 database. There are 
-many ways to install PostGIS. Here's an example for Ubuntu that installs from
-the ubuntugis-unstable PPA. These two commands will pull down postgres and 
-postgis.
+ - [Docker](https://docs.docker.com/installation/#installation) itself 
+   will need to be installed.
+ - [Docker Compose](http://docs.docker.com/compose/install/) needs to be
+   installed on Linux and OS X machines.
+ - Git also needs to be installed. On Windows, I recommend installing
+   [Git Bash](http://git-scm.com/download/win) after you install docker.
 
-```
-# sudo apt-add-repository ppa:ubuntugis/ubuntugis-unstable
-# sudo apt-get install postgresql-9.1-postgis-2.1
-```
+A brief note about how Docker works on each platform is in order:
 
-After installing Postgres, we need to add a user and database. We do so by 
-switching to the postgres user and running the createdb and createuser 
-commands. Finally, we grant rights to our new user. Again, examples assume
-Ubuntu:
+ - On **Linux**, docker runs as a system daemon and docker compose is a 
+   first-class citizen. Everything runs natively and is extremely simple.
+ - On **OS X**, as on Linux, docker and docker compose are native clients.
+   But OS X does not support the virtual machines that docker uses to 
+   build its systems (a.k.a. containers). Therefore, on OS X, the actual 
+   virtual machines executing your code run inside a 
+   [VirtualBox VM](http://i.imgur.com/IlwpphS.jpg). That's the 
+   'boot2docker' part you'll see references to in the OS X install guide.
+ - On **Windows**, none of these things are supported natively. Instead, 
+   __everything__ runs inside the 'boot2docker' VM. Docker compose isn't 
+   actually supported at all, so we do some magic tricks to make it all 
+   work.
 
-```
-# sudo su - postgresql
-postgres# createdb cfac
-postgres# createuser -P
-  role: cfac
-  password: cfac
-  n
-  n
-  n
-postgres# psql -c "GRANT ALL PRIVILEGES ON DATABASE cfac TO cfac;"
-```
+Once we get docker installed correctly, the commands are the same for 
+every platform, but getting docker going can be a bit tricky. Here are
+notes for the platforms that have been tested.
 
-We're now ready to install the necessary python requirements. From within the 
-sandbox directory we created ealier (e.g. 'code-for-cary', the directory above
-this repo), create a new Python virtualenv:
+#### Linux
 
-```
-# virtualenv --no-site-packages env
-# source env/bin/activate
-```
+Follow the install guide on Docker's site. On Ubuntu, it's nice to be able
+to run docker as a [non-root user](https://docs.docker.com/installation/ubuntulinux/#giving-non-root-access)
 
-We now have a sandbox Python environment to house our django applicaiton. 
-Install all our dependencies:
+Otherwise, just clone the repo and step into it.
 
 ```
-(env)# cd cfa-cary-django-site
-(env)# pip install -r requirements.txt
+$ mkdir ~/projects
+$ cd ~/projects
+$ git clone https://github.com/CodeForCary/django-dev-map.git
 ```
 
-Resolve any compile errors that occur by using Google. Usually it's due to a 
-missing C library or development package and is easy enough to resolve. Once 
-all the requirements are in place, we activate django in our database and 
-import our KML files:
+#### OS X
+<< TBD >>
+
+#### Windows
+
+The most complicated thing about Windows is figuring out what context you're
+running in because you'll have (at some points) VMs inside of VMs inside of 
+VMs (seriously). Once you've got boot2docker and git bash installed, all you 
+need to do is pull down this repo and log into the boot2docker VM.
 
 ```
-python manage.py syncdb
-python manage.py migrate permit_map 
-python import_permits.py kml/*.kml
+$ mkdir ~/projects
+$ cd ~/projects
+$ git clone https://github.com/CodeForCary/django-dev-map.git
+$ boot2docker download
+$ boot2docker start
+$ boot2docker ip    <-- jot this down for future reference
+$ boot2docker ssh
+docker$ cd /c/Users/<< your user name >>/projects/django-dev-map
+docker$ . docker/windows-init
 ```
 
-Finally we can start up the django development server:
+At the end of this, you are running commands inside the boot2docker VM, but 
+you are actually looking at your Windows home directory. So if you edit the 
+code here, you'll change the application.
+
+The last command above, where we source in the 'windows-init' file, is what 
+allows us to use docker compose on Windows.
+
+#### Configuring the Dev Map App
+
+Now that docker is installed and our repo is checked out, we're ready to get
+the dev map application up and running. Let's start by executing Django's 
+management script __via Docker__. So this command will spin up a virtual 
+machine and run the command in that context:
 
 ```
-python manage.py runserver 0.0.0.0:8080
+chmod +x *.sh *.py
+./dmanage.sh --help
 ```
 
-### OpenShift Deployment
-The application is also configured to be deployed onto RedHat's OpenShift 
-platform. Follow the [instructions](https://www.openshift.com/get-started) on
-RedHat's website to get started with the command line tools. Once you're to the
-point where you're conneccted to OpenShift and ready to deploy the application,
-execute the following from your OpenShift staging directory (see recommended 
-layout in prior section):
+You'll probably want to go get a cup of coffee, because this will be the 
+longest that you've ever waited for a help screen. Running dmanage for the 
+first time provisions:
+
+ - A postgres database, with the postgis extensions installed
+ - A python environment capable of running our django application
+ - An npm/bower environment with all of our Javascript dependencies
+
+You can see all of these described in the __docker-compose.yml__ file at the 
+root of the repository. Once all these containers have been built, and 
+assuming there are no errors, you should get the help screen for Django.
+
+Next, we need to set up our database:
 
 ```
-rhc app create -a cfac -t python-2.7
-rhc cartridge add postgresql-9.2 --app cfac
-cd cfac
-git remote add upstream -m master https://github.com/mattkendall/cfa-cary-django-site.git
-git pull -s recursive -X theirs upstream master
-git push
+./dmanage.sh schemamigration permit_map --init
+./dmanage.sh syncdb
+./dmanage.sh migrate permit_map
 ```
 
-These commands create a new gear with python and postgres, pull this 
-repository into your OpenShift application's repository, and then push the
-changes, which deploys and starts the gear.
+These three commands:
+
+ 1. Calculate the set of SQL to run to create our initial tables for 
+    the permit_map application.
+ 2. Create the basic tables/structures for Django.
+ 3. Apply the SQL calculated in step #1.
+
+We now have a database in our postgres docker container. Lets import some 
+permit data into that database:
+
+```
+./dimport.sh --town Cary shapefiles/cary/*.kml
+```
+
+Once this command finishes, all shapefile data has been imported and we're
+ready to bring our application up for the first time. Execute:
+
+```
+docker-compose up
+```
+
+This should spin up all the containers and you can now view the app in your
+browser:
+
+```
+http://<< ip address >>:8080/
+```
+
+The IP address will differ depending on your platform:
+
+ - On **Linux** it's the IP address of your machine.
+ - On **OS X** it's...I think it's your machine's IP.
+ - On **Windows** it's the ip address that you noted earlier when you 
+   ran ``boot2docker ip``.
+
+You should now be able to edit both Python and Javascript files and see 
+your changes by simply refreshing the browser window. You can bring 
+everything down just by hitting CTRL-C.
