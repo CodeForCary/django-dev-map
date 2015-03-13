@@ -71,7 +71,7 @@ A brief note about how Docker works on each platform is in order:
    But OS X does not support the virtual machines that docker uses to 
    build its systems (a.k.a. containers). Therefore, on OS X, the actual 
    virtual machines executing your code run inside a 
-   [VirtualBox VM](http://i.imgur.com/IlwpphS.jpg). That's the 
+   [VirtualBox VM](https://www.virtualbox.org/). That's the 
    'boot2docker' part you'll see references to in the OS X install guide.
  - On **Windows**, none of these things are supported natively. Instead, 
    __everything__ runs inside the 'boot2docker' VM. Docker compose isn't 
@@ -102,8 +102,9 @@ $ git clone https://github.com/CodeForCary/django-dev-map.git
 
 The most complicated thing about Windows is figuring out what context you're
 running in because you'll have (at some points) VMs inside of VMs inside of 
-VMs (seriously). Once you've got boot2docker and git bash installed, all you 
-need to do is pull down this repo and log into the boot2docker VM.
+VMs ([seriously](https://www.virtualbox.org/)). Once you've got boot2docker 
+and git bash installed, all you need to do is pull down this repo and log into 
+the boot2docker VM.
 
 ```
 $ mkdir ~/projects
