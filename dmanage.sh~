@@ -1,7 +1,0 @@
-#!/bin/sh
-
-if [ ! `type "docker-compose" > /dev/null` ]; then
-	. ./docker/windows-init
-fi
-
-exec docker-compose run django ./manage.py $@
