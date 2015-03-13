@@ -102,7 +102,7 @@ $ git clone https://github.com/CodeForCary/django-dev-map.git
 
 The most complicated thing about Windows is figuring out what context you're
 running in because you'll have (at some points) VMs inside of VMs inside of 
-VMs ([seriously](https://www.virtualbox.org/)). Once you've got boot2docker 
+VMs ([seriously](http://i.imgur.com/IlwpphS.jpg)). Once you've got boot2docker 
 and git bash installed, all you need to do is pull down this repo and log into 
 the boot2docker VM.
 
